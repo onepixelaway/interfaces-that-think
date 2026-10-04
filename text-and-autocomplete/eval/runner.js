@@ -49,7 +49,10 @@ run.onclick = async () => {
         core = await import(base + 'compose-core.js?eval=' + Date.now());
         transport = await import(base + 'realtime.js?eval=' + Date.now());
       } catch (error) {
-        if (variant === 'baseline') continue;
+        if (variant === 'baseline') {
+          report.missingBaseline = true;
+          continue;
+        }
         throw error;
       }
       client = new transport.RealtimeCompose(() => {});
@@ -87,7 +90,11 @@ run.onclick = async () => {
       client.disconnect();
       if (stopped) break;
     }
-    status.textContent = stopped ? 'Stopped' : 'Complete';
+    status.textContent = stopped
+      ? 'Stopped'
+      : report.missingBaseline
+        ? 'Complete, without a baseline: eval/baseline/ is empty'
+        : 'Complete';
   } catch (error) {
     status.textContent = error.message;
   } finally {

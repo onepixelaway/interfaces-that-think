@@ -201,6 +201,16 @@ test('connect exchanges key once and authenticates socket with an ephemeral toke
   client.disconnect();
   assert.equal(client.ready, false);
 });
+test('an error on one request fails that request but keeps the connection ready', async () => {
+  const { client, socket, statuses } = await setup();
+  const result = client.request({ before: 'D', after: '' });
+  socket.emit({ type: 'error', error: { code: 'rate_limit_exceeded' } });
+  await assert.rejects(result, /rate limit/);
+  assert.equal(client.ready, true);
+  assert.equal(statuses.at(-1)[0], 'ready');
+  assert.match(statuses.at(-1)[1], /rate limit/);
+  client.disconnect();
+});
 test('completion correlates response metadata and ignores unrelated responses', async () => {
   const { client, socket } = await setup();
   const result = client.request({ before: 'D', after: '' });

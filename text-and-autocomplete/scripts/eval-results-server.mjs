@@ -3,19 +3,20 @@ import { createServer } from 'node:http';
 import { mkdirSync, writeFileSync } from 'node:fs';
 const directory = new URL('../eval/runs/', import.meta.url);
 mkdirSync(directory, { recursive: true });
+// The eval page runs from the dev server under either local name.
+const ORIGINS = ['http://localhost:4174', 'http://127.0.0.1:4174'];
 createServer(async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4174');
+  if (ORIGINS.includes(req.headers.origin)) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader('Vary', 'Origin');
+  }
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
     return;
   }
-  if (
-    req.method !== 'POST' ||
-    req.url !== '/results' ||
-    req.headers.origin !== 'http://localhost:4174'
-  ) {
+  if (req.method !== 'POST' || req.url !== '/results' || !ORIGINS.includes(req.headers.origin)) {
     res.writeHead(403);
     res.end();
     return;

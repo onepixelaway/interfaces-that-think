@@ -16,7 +16,7 @@ AI edits go through the browser's undo, so Undo restores the original. Documents
 
 ## How it works
 
-The app talks to [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini) over OpenAI's [Realtime WebSocket API](https://developers.openai.com/api/docs/guides/voice-websockets?api=realtime). Each request sends the document text around the caret or selection, with no conversation history. Your key goes only from your browser to OpenAI, which returns a short-lived token for the session. The key is stored in this browser's localStorage so a refresh reconnects; **Remove key from this browser** in the connect dialog deletes it. There are no external scripts, fonts, or analytics.
+The app talks to [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini) over OpenAI's [Realtime WebSocket API](https://developers.openai.com/api/docs/guides/voice-websockets?api=realtime). Each request sends the whole document, which is limited to 12,000 characters, split at the caret or selection, with no conversation history. Your key goes only from your browser to OpenAI, which returns a short-lived token for the session. The key is stored, unencrypted, in this browser's localStorage so a refresh reconnects; **Remove key from this browser** in the connect dialog deletes it. localStorage is shared by every page on the same origin, so if you host the prototype, give it its own origin (such as a subdomain) rather than a folder of a site that runs other scripts. There are no external scripts, fonts, or analytics.
 
 In browsers that support WebMCP, the page also registers an `update_document` tool so a browser agent can replace the document. That tool sends nothing to OpenAI.
 
@@ -47,7 +47,7 @@ Open `http://localhost:4174/` and connect with your own OpenAI API key. Its proj
 node --test tests/*.test.mjs
 ```
 
-Requires Node 22 or later. The tests use a fake connection, so they need no key and cost nothing.
+Requires Node 22.7 or later. The tests use a fake connection, so they need no key and cost nothing.
 
 ## Publish
 
@@ -55,7 +55,7 @@ Run `node scripts/version-assets.mjs` so browsers load changed files instead of 
 
 ## Evaluate autocomplete
 
-`eval/` holds 24 development cases and 12 held-out cases that run autocomplete against the real model. With the dev server running, open `http://localhost:4174/eval/`. It uses the key the editor stored, so usage is billed to it. To save results, also run `node scripts/eval-results-server.mjs` and click **Save report locally**; reports go to `eval/runs/`. To compare with an older version, copy its JavaScript modules into `eval/baseline/`. Git ignores both folders.
+`eval/` holds 24 development cases and 12 held-out cases that run Tab autocomplete (one suggestion per request) against the real model. With the dev server running, open `http://localhost:4174/eval/`. It uses the key the editor stored, so usage is billed to it. To save results, also run `node scripts/eval-results-server.mjs` and click **Save report locally**; reports go to `eval/runs/`. To compare with an older version, copy its JavaScript modules into `eval/baseline/`; without them, **Both versions** runs only the current one and says so. Git ignores both folders.
 
 ## Debug log
 

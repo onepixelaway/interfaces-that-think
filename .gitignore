@@ -1,4 +1,24 @@
+# OS and editor files
 .DS_Store
+Thumbs.db
 .claude/
+.vscode/
+.idea/
+
+# Secrets: keep API keys in the environment or a local .env, never in git
+.env
+.env.*
+!.env.example
+
+# Dependencies, logs, and build output (the prototypes have none checked in;
+# each dist/ folder is hand-written source and stays tracked)
+node_modules/
+npm-debug.log*
+*.log
+coverage/
+build/
+out/
+
+# Local evaluation results
 text-and-autocomplete/eval/baseline/
 text-and-autocomplete/eval/runs/

@@ -272,7 +272,6 @@ export class LiveRewrite {
           'mu',
         );
         const versions = (best ? String(raw ?? '').split(separator) : [raw])
-          .filter(version => String(version ?? '').trim() !== VERSION_SEPARATOR)
           .map(version => rewriteText(version, this.context))
           .filter(text => text && this.fresh(text));
         // An overlong or repeated synonym is asked for again rather than shown.

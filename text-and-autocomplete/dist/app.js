@@ -13,9 +13,9 @@ import {
   ALTERNATIVE_COUNT,
   plainSpaces,
 } from './compose-core.js?v=2b7382bcbabf';
-import { RealtimeCompose } from './realtime.js?v=0b50883c9d6f';
+import { RealtimeCompose } from './realtime.js?v=b4675acd09d9';
 import { readSavedKey, saveKey, forgetKey } from './key-storage.js?v=d7465de288af';
-import { SelectionRewrite } from './selection-rewrite.js?v=c500239fc161';
+import { SelectionRewrite } from './selection-rewrite.js?v=48af245f0686';
 import { SelectionCombine } from './selection-combine.js?v=833383fe8ed4';
 
 const $ = id => document.getElementById(id);
@@ -1070,7 +1070,7 @@ if (document.modelContext?.registerTool) {
             title.value = input.title;
             title.dispatchEvent(new Event('input'));
             editor.replaceChildren();
-            for (const line of input.text.split('\n')) {
+            for (const line of input.text.split(/\r?\n/)) {
               const p = document.createElement('p');
               if (line) p.textContent = line;
               else p.append(document.createElement('br'));

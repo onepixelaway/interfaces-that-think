@@ -4,7 +4,7 @@ import {
   COMPOSE_INSTRUCTIONS,
   MAX_OUTPUT_TOKENS,
 } from './compose-core.js?v=2b7382bcbabf';
-import { rewriteEvent } from './rewrite-core.js?v=f5f0abd7198f';
+import { rewriteEvent } from './rewrite-core.js?v=91f7e8868eb3';
 import { combineEvent } from './combine-core.js?v=3a75d9186a2f';
 
 export class RealtimeCompose {
@@ -115,8 +115,9 @@ export class RealtimeCompose {
                 : 'OpenAI could not complete this request. Reconnect or check your model access.';
             if (!connected) fail(detail);
             else {
+              // One request failed; the connection is still open, so stay ready.
               this.finishError(detail);
-              this.onStatus('error', detail);
+              this.onStatus('ready', detail);
             }
           } else this.receive(message);
         };

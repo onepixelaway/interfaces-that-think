@@ -1,0 +1,1007 @@
+@font-face {
+  font-family: 'Newsreader';
+  src: url('fonts/Newsreader.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Newsreader';
+  src: url('fonts/Newsreader-Italic.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pixelta';
+  src: url('fonts/Pixelta.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+/* Colors and type follow darioamodei.com, including its dark palette. The
+   <head> script sets data-theme from the saved choice or the system setting. */
+:root {
+  color-scheme: light;
+  --background: #f0eee6;
+  --surface: #faf9f5;
+  --text: #1f1e1d;
+  --text-secondary: #5e5d59;
+  --emphasis: #2e637a;
+  --border: #d1cfc5;
+  --button: #e8e6dc;
+  --segment: #faf9f5;
+  --fold-note: #f5f4f0;
+  --footnote: #00000014;
+  --footnote-hover: #00000026;
+  --selection: #0064ff42;
+  --shadow: #1f1e1d33;
+  --backdrop: #1f1e1d73;
+  --primary: #1f1e1d;
+  --on-primary: #f0eee6;
+  --tag: #9c4a1f;
+  --tag-border: #dcb89f;
+  --error: #b3261e;
+  --button-hover: #dedbcf;
+  /* The soft grey of a … pill and of text it reveals, in either theme. */
+  --collapsed: color-mix(in srgb, var(--text) 6%, transparent);
+  --collapsed-hover: color-mix(in srgb, var(--text) 11%, transparent);
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #1f1e1d;
+  --surface: #2a2927;
+  --text: #f0eee6;
+  --text-secondary: #b0aea5;
+  --emphasis: #add6e8;
+  --border: #5e5d59;
+  --button: #3d3d3a;
+  --segment: #3d3d3a;
+  --fold-note: #323130;
+  --footnote: #ffffff26;
+  --footnote-hover: #fff6;
+  --shadow: #0009;
+  --backdrop: #0a0a0ab3;
+  --primary: #f0eee6;
+  --on-primary: #1f1e1d;
+  --tag: #eac384;
+  --tag-border: #6b5a3a;
+  --error: #ffb4ab;
+  --button-hover: #4a4a46;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: 'Newsreader', 'Times New Roman', serif;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  font-synthesis: none;
+}
+::selection {
+  background: var(--selection);
+  color: inherit;
+}
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+button {
+  border: 0;
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+a {
+  color: inherit;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 2px;
+}
+a:hover {
+  color: var(--text-secondary);
+}
+
+/* Text for screen readers only, and an open … pill, which stays for them. */
+.sr-only,
+.essay.emphasis-collapse .emph-more.emph-open {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The essay */
+.page {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 120px 20px 64px;
+}
+/* The source uses Newsreader's 24 pt cut at every size. */
+.essay {
+  font-optical-sizing: none;
+  font-variation-settings: 'opsz' 24;
+}
+.essay-title {
+  font-size: 3.875rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0 0 0.1em;
+  text-wrap: balance;
+}
+.essay-subtitle {
+  font-size: 1.375rem;
+  font-style: italic;
+  margin: 0;
+}
+.essay-byline {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 36px 0 64px;
+}
+.essay-byline a {
+  text-decoration: none;
+}
+.essay-byline a:hover {
+  color: var(--text);
+}
+.essay-byline .essay-original {
+  text-decoration: underline;
+  white-space: nowrap;
+}
+.essay-body p,
+.essay-afterword p {
+  margin: 0 0 1em;
+}
+.essay h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 52px 0 16px;
+  text-wrap: balance;
+}
+.essay ul,
+.essay ol {
+  margin: 0 0 1em;
+  padding-left: 40px;
+}
+.essay li {
+  margin-bottom: 6px;
+}
+
+/* Footnotes. Like the source, the marker scales with its text and the pill does not. */
+.fn-ref {
+  position: relative;
+  top: -0.5em;
+  margin: 0 2px;
+  font-size: 0.75em;
+  line-height: 0;
+  vertical-align: baseline;
+}
+.fn-ref a {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 3px 3px 1px;
+  border-radius: 4px;
+  background: var(--footnote);
+  color: inherit;
+  text-decoration: none;
+}
+.fn-ref a:hover {
+  background: var(--footnote-hover);
+}
+.dinkus {
+  border: 0;
+  height: auto;
+  margin: 10px 0;
+}
+.dinkus::after {
+  content: '\2042';
+  display: block;
+  margin: 1em auto;
+  font-family: serif;
+  font-size: 1.5em;
+  font-weight: 200;
+  text-align: center;
+}
+.footnotes {
+  margin-top: 40px;
+}
+.footnotes h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1.3em;
+}
+.footnotes ol {
+  list-style: none;
+  padding: 0;
+}
+.footnotes li {
+  margin-bottom: 1em;
+  border-radius: 4px;
+}
+.footnotes li::before {
+  content: counter(list-item);
+  position: relative;
+  top: -0.5em;
+  margin-right: 0.3em;
+  font-size: 0.75em;
+  line-height: 0;
+}
+.footnotes li:target {
+  background: var(--footnote);
+  box-shadow: 0 0 0 8px var(--footnote);
+}
+.fn-back {
+  text-decoration: none;
+}
+[id] {
+  scroll-margin-top: 32px;
+}
+.credit {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+.credit p {
+  margin: 0;
+}
+
+/* Light/dark switch and Intelligence menu, in the top-right corner */
+.controls {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* The light/dark switch from darioamodei.com: the same ivory pill in both modes. */
+.theme-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  margin-right: 6px;
+  cursor: pointer;
+}
+.theme-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.theme-switch span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid #1f1e1d;
+  border-radius: 2rem;
+  background: #faf9f5;
+}
+.theme-switch span::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #1f1e1d;
+}
+.theme-switch.animated span::before {
+  transition: transform 0.2s;
+}
+.theme-switch input:checked + span::before {
+  transform: translateX(20px);
+}
+.theme-switch input:focus-visible + span {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+.intelligence summary,
+.try-article {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--background) 85%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.intelligence summary:hover,
+.try-article:hover,
+.intelligence[open] summary {
+  color: var(--text);
+}
+.intelligence {
+  position: relative;
+}
+.intelligence summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.intelligence summary::-webkit-details-marker {
+  display: none;
+}
+.intelligence[open] summary {
+  background: var(--surface);
+}
+.spark {
+  font-size: 1.25em;
+  line-height: 0;
+}
+.intelligence summary svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .intelligence summary svg {
+    transition: transform 0.15s;
+  }
+}
+.intelligence[open] summary svg {
+  transform: rotate(180deg);
+}
+.intelligence-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  gap: 2px;
+  min-width: 240px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  box-shadow: 0 8px 28px var(--shadow);
+  color: var(--text);
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+.intelligence-menu label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.intelligence-menu label:hover {
+  background: var(--button);
+}
+.intelligence-menu .sub-idea {
+  padding-left: 33px;
+}
+.intelligence-menu label:has(input:disabled) {
+  color: var(--text-secondary);
+  opacity: 0.6;
+  cursor: default;
+}
+.intelligence-menu label:has(input:disabled):hover {
+  background: none;
+}
+.intelligence-menu input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--text);
+}
+.notice {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 10px 15px;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  box-shadow: 0 8px 30px var(--shadow);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  z-index: 5;
+}
+.notice:empty {
+  display: none;
+}
+
+/* Key information marks key text as .emph-key, the blocks
+   around it as .emph-dim, and the essay as .emphasis-reading while scrolling
+   rests. At rest everything is the regular text color. Two ideas style it:
+   - .emphasis-fade: while scrolling, other text fades to --skim over
+     --fade-out; once scrolling stops, it stays faded for --fade-hold, then
+     comes back over --fade-in
+   - .emphasis-key: while scrolling, key text turns --emphasis (teal blue) over
+     --to-skim; at rest it comes back over --key-to-read */
+.essay {
+  --skim: 25%;
+  --read: 100%;
+  --fade-out: 0.5s;
+  --fade-hold: 1.5s;
+  --fade-in: 0.5s;
+  --to-skim: 0.3s;
+  --key-to-read: 2.5s;
+}
+.essay.emphasis-fade .emph-dim {
+  color: color-mix(in srgb, var(--text) var(--skim), transparent);
+  transition: color var(--fade-out) ease;
+}
+.essay.emphasis-fade.emphasis-reading .emph-dim {
+  color: color-mix(in srgb, var(--text) var(--read), transparent);
+  transition: color var(--fade-in) ease var(--fade-hold);
+}
+/* Key text never fades. */
+.essay.emphasis-fade .emph-key,
+.essay.emphasis-fade a:has(.emph-key) {
+  color: var(--text);
+}
+.essay.emphasis-key .emph-key,
+.essay.emphasis-key a:has(.emph-key) {
+  color: var(--emphasis);
+  transition: color var(--to-skim) ease;
+}
+.essay.emphasis-key.emphasis-reading .emph-key,
+.essay.emphasis-key.emphasis-reading a:has(.emph-key) {
+  color: var(--text);
+  transition: color var(--key-to-read) ease-in-out;
+}
+
+/* Collapse secondary information: other text hides behind a … pill that expands
+   it on hover or a click. Text in a pill, and text it reveals, is set exactly
+   like the body text so it reads straight through; only a soft grey background
+   marks it. An invisible margin around the pill widens its hit area, so resting
+   near it counts. */
+.emph-more {
+  display: none;
+}
+.essay.emphasis-collapse .emph-rest:not(.emph-open),
+.essay.emphasis-collapse .emph-follow:not(.emph-open) {
+  display: none;
+}
+.essay.emphasis-collapse .emph-more {
+  position: relative;
+  display: inline;
+  /* More room on top than below: Newsreader sits low in its line box, so this
+     leaves about the same space above capitals as below the baseline. */
+  padding: 0.24em 0.3em 0.1em;
+  border-radius: 0.4em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: var(--collapsed);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+/* The … sits on the baseline, so lift it to the middle of the pill. */
+.essay.emphasis-collapse .emph-dots {
+  position: relative;
+  top: -0.27em;
+  letter-spacing: 0.04em;
+}
+/* Add summary in collapsed area: the summary sits to the
+   left of the … inside the pill, in the body text's color. */
+.essay.emphasis-collapse .emph-summary {
+  margin-right: 0.25em;
+  color: var(--text);
+}
+.essay.emphasis-collapse .emph-more::before {
+  content: '';
+  position: absolute;
+  inset: -0.6em -0.7em;
+}
+.essay.emphasis-collapse .emph-more:hover {
+  background: var(--collapsed-hover);
+}
+.essay.emphasis-collapse .emph-rest.emph-open {
+  padding: 0.24em 0 0.1em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: var(--collapsed);
+}
+.essay.emphasis-collapse .emph-follow.emph-open {
+  margin-inline: -0.3em;
+  padding: 0.1em 0.3em;
+  border-radius: 0.4em;
+  background: var(--collapsed);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .essay.emphasis-collapse .emph-rest.emph-open,
+  .essay.emphasis-collapse .emph-follow.emph-open {
+    animation: emph-reveal 0.2s ease-out;
+  }
+}
+@keyframes emph-reveal {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Collapse sections into summaries: a folded section's
+   first 300px shows at 70%, then fades out over the next 300px, under a centered
+   callout with its summary. The text and the callout share one grid cell, so a
+   long summary grows the fold instead of spilling past it. */
+.section-fold {
+  display: grid;
+  cursor: pointer;
+}
+.section-fold > * {
+  grid-area: 1 / 1;
+}
+.section-fold-content {
+  max-height: 600px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.7) 0,
+    rgb(0 0 0 / 0.7) 300px,
+    transparent 600px
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.7) 0,
+    rgb(0 0 0 / 0.7) 300px,
+    transparent 600px
+  );
+}
+.section-fold-callout {
+  z-index: 1;
+  /* The idea sets the top margin to start just below the section's
+     first sentence or two; this is the fallback, two lines down. */
+  align-self: start;
+  justify-self: center;
+  width: min(500px, 92%);
+  margin: 64px 0 24px;
+  padding: 28px 32px 24px;
+  /* A flat, near-white grey with no border or shadow, so it reads as a soft
+     note in the page rather than a card laid over it. */
+  border-radius: 0.6em;
+  background: var(--fold-note);
+}
+.section-fold-callout .section-fold-summary {
+  margin: 0 0 14px;
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+.section-fold-callout .section-fold-more {
+  margin: 0;
+  line-height: 1;
+}
+/* The same quiet … pill as collapsed text, with its dots lifted to the middle. */
+.section-fold-pill {
+  display: inline-block;
+  padding: 0.24em 0.5em 0.1em;
+  border-radius: 0.4em;
+  background: var(--collapsed);
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  letter-spacing: 0.04em;
+}
+.section-fold-pill .emph-dots {
+  position: relative;
+  top: -0.27em;
+}
+.section-fold:hover .section-fold-pill,
+.section-fold-callout:focus-visible .section-fold-pill {
+  background: var(--collapsed-hover);
+}
+.section-fold.open {
+  display: block;
+  cursor: auto;
+}
+.section-fold.open .section-fold-content {
+  max-height: none;
+  overflow: visible;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+/* Where focus lands when a section opens from its callout; the section itself
+   needs no ring. */
+.section-fold-content:focus {
+  outline: none;
+}
+.section-fold.open .section-fold-callout {
+  display: none;
+}
+
+/* Group lists by other principles: a sentence above each
+   list, set like the body text and finished by a dropdown and a period. Open, it
+   stacks every option with the chosen one right over the dropdown, like a
+   vertical segmented control. The options share the dropdown's padding, so the
+   chosen one's words stay exactly in place. Group headings are plain phrases,
+   set like the body text. Dario's list hides while a copy shows it regrouped.
+   Nothing animates. */
+.regroup {
+  margin: 0 0 0.9em;
+  color: var(--text-secondary);
+}
+.regroup-end {
+  white-space: nowrap;
+}
+.regroup-picker {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.1em;
+}
+.regroup-trigger,
+.regroup-option {
+  padding: 0.12em 0.5em 0.06em 0.55em;
+  border-radius: 0.45em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+/* A flex box, so the picker is exactly the dropdown's size and the menu lines up
+   with it. */
+.regroup-trigger {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+  color: var(--text);
+}
+.regroup-trigger:hover,
+.regroup-trigger[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+}
+.regroup-trigger svg {
+  align-self: center;
+  width: 0.7em;
+  height: 0.7em;
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.regroup-menu {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 0.6em;
+  background: color-mix(in srgb, var(--text) 6%, var(--background));
+  box-shadow:
+    0 10px 30px var(--shadow),
+    0 0 0 1px var(--border);
+}
+.regroup-menu[hidden] {
+  display: none;
+}
+.regroup-option {
+  display: block;
+  margin: 0;
+  background: none;
+  color: var(--text-secondary);
+  text-align: left;
+}
+.regroup-option:hover,
+.regroup-option:focus-visible {
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+  color: var(--text);
+}
+.regroup-option[aria-checked='true'] {
+  background: var(--segment);
+  box-shadow:
+    0 1px 2px var(--shadow),
+    0 0 0 0.5px color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
+}
+.regroup-away {
+  display: none;
+}
+.regrouped {
+  margin: 0 0 1em;
+}
+.regroup-heading {
+  margin: 0.8em 0 0.3em;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
+  color: var(--text);
+}
+.regroup-heading:first-child {
+  margin-top: 0;
+}
+.regrouped ul,
+.regrouped ol {
+  margin-bottom: 0;
+}
+/* Words changed to fit the new order; hover shows what Dario wrote. */
+.regroup-edit {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+
+/* Slide through lists as cards: a list's items as a row of
+   cards, each a flat, near-white grey like the section callouts, with no border
+   or shadow. A card and a half show at once. An icon sits in each card's
+   corner, in the secondary text color, above the item's text, set a little
+   smaller than the body text. The cards move only when you scroll, swipe, or
+   use the arrow keys, and slide only if you haven't asked for less motion. */
+.carousel-away {
+  display: none;
+}
+.carousel {
+  margin: 0 0 1em;
+}
+.essay .carousel-track {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: 0.6em;
+}
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .carousel-track {
+    scroll-behavior: smooth;
+  }
+}
+.essay .carousel-card {
+  flex: 0 0 calc((100% - 12px) / 1.5);
+  margin: 0;
+  padding: 20px 24px 22px;
+  border-radius: 0.6em;
+  /* The section callouts' near-white, at 80% so a little of the page shows. */
+  background: color-mix(in srgb, var(--fold-note) 80%, transparent);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  scroll-snap-align: start;
+}
+.carousel-icon {
+  display: block;
+  margin-bottom: 10px;
+  line-height: 0;
+}
+.carousel-icon svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Try your own article: the Interfaces that think dialog, as
+   in the series' other prototypes, in this page's colors, with a field to paste
+   an article into. */
+dialog {
+  width: min(600px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 44px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 100px var(--shadow);
+}
+dialog::backdrop {
+  background: var(--backdrop);
+  backdrop-filter: blur(3px);
+}
+dialog .series a {
+  color: inherit;
+  text-decoration: none;
+}
+dialog .series a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+}
+dialog p a {
+  color: var(--text);
+}
+/* The two ways to try the prototype: Dario's essay here, your own text below. */
+.try-essay {
+  margin-top: 6px;
+  padding: 10px 17px;
+  border-radius: 0.5rem;
+  background: var(--button);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.try-essay:hover {
+  background: var(--button-hover);
+}
+dialog .series {
+  margin: 0 30px 26px 0;
+  color: var(--text);
+  font-family: 'Pixelta', serif;
+  font-size: 44px;
+  line-height: 1;
+}
+dialog h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 30px 18px 0;
+  font-size: 1.625rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.prototype-tag {
+  padding: 3px 8px 2px;
+  border: 1px solid var(--tag-border);
+  border-radius: 999px;
+  color: var(--tag);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+dialog p {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.dialog-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+dialog h3 {
+  margin: 0 0 12px;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.close-dialog {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 25px;
+  line-height: 1;
+}
+.close-dialog:hover {
+  color: var(--text);
+}
+#article-form {
+  margin-top: 18px;
+}
+#article-text {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--text);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+#article-text:disabled {
+  opacity: 0.6;
+}
+dialog .article-note {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+}
+dialog .article-error {
+  margin: 12px 0 0;
+  color: var(--error);
+  font-size: 0.9375rem;
+}
+dialog .article-error:empty {
+  display: none;
+}
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+.dialog-actions a {
+  font-size: 0.875rem;
+}
+/* The GitHub mark beside See the code, as in the series' other prototypes. */
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.source-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+#article-submit {
+  margin-left: auto;
+  padding: 10px 17px;
+  border-radius: 0.5rem;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+#article-submit:hover {
+  opacity: 0.88;
+}
+#article-submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (max-width: 600px) {
+  dialog {
+    padding: 32px 24px 28px;
+  }
+  dialog .series {
+    font-size: 36px;
+  }
+  .close-dialog {
+    top: 14px;
+    right: 14px;
+  }
+  .dialog-actions {
+    flex-wrap: wrap;
+  }
+  /* Shorter lines put the second sentence further down. */
+  .section-fold-callout {
+    margin-top: 96px;
+  }
+  /* Anchor the menu to the corner, so it stays on screen. */
+  .intelligence {
+    position: static;
+  }
+  .page {
+    padding: 80px 16px 48px;
+  }
+  .essay-title {
+    font-size: 3rem;
+  }
+  /* A card fills the width, less a peek at the next one. */
+  .essay .carousel-card {
+    flex-basis: calc(100% - 40px);
+    padding: 18px 20px 20px;
+  }
+}

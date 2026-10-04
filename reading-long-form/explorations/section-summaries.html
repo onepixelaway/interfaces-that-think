@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Section summary options</title>
+    <!-- A design review page, not part of the published site: it links the
+         essay's styles in dist and shows ways to present Collapse sections
+         into summaries side by side. -->
+    <script>
+      document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+    </script>
+    <link rel="stylesheet" href="../dist/style.css">
+    <style>
+      .explore {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 72px 20px 120px;
+      }
+      .explore-head {
+        max-width: 620px;
+        margin-bottom: 40px;
+      }
+      .explore-kicker {
+        margin: 0 0 8px;
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+      .explore h1 {
+        margin: 0 0 16px;
+        font-size: 2.5rem;
+        line-height: 1.15;
+      }
+      .explore-lede {
+        margin: 0 0 20px;
+      }
+      .explore-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 1rem;
+      }
+      .explore-nav a {
+        color: var(--text-secondary);
+      }
+      .explore-theme {
+        margin-top: 18px;
+        padding: 6px 12px;
+        border-radius: 0.5rem;
+        background: var(--button);
+        font-size: 0.9375rem;
+      }
+      .option {
+        padding: 36px 0 44px;
+        border-top: 1px solid var(--border);
+      }
+      .option-head {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        max-width: 620px;
+      }
+      .option-name {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      .option-reset {
+        margin-left: auto;
+        background: none;
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .option-note {
+        max-width: 620px;
+        margin: 6px 0 24px;
+        color: var(--text-secondary);
+        font-size: 1.0625rem;
+        line-height: 1.5;
+      }
+      .stage {
+        max-width: 580px;
+      }
+      .stage h2 {
+        margin-top: 0;
+      }
+      .stage .essay-body p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Today's fold, as in the essay, with the callout about two sentences in. */
+      .section-fold-callout {
+        margin-top: 150px;
+      }
+
+      /* Color 1, Paper: no card. The summary is a band of the page itself across
+         the column, between two rules, like a pull quote. */
+      .paper .section-fold-callout {
+        width: 100%;
+        padding: 22px 0 20px;
+        border: 0;
+        border-block: 1px solid var(--border);
+        border-radius: 0;
+        background: var(--background);
+        box-shadow: none;
+      }
+      /* Color 2, Teal: tinted like the key-sentence emphasis. */
+      .teal .section-fold-callout {
+        border: 0;
+        background: color-mix(in srgb, var(--emphasis) 13%, var(--background));
+        box-shadow: none;
+        color: var(--emphasis);
+      }
+      .teal .section-fold-pill,
+      .teal .section-fold:hover .section-fold-pill {
+        background: color-mix(in srgb, var(--emphasis) 16%, transparent);
+        color: var(--emphasis);
+      }
+      /* Color 3, Grey: the soft grey of the … pills on collapsed text. */
+      .grey .section-fold-callout {
+        border: 0;
+        border-radius: 0.6em;
+        background: color-mix(in srgb, var(--text) 6%, var(--background));
+        box-shadow: none;
+      }
+      .grey .section-fold-pill {
+        background: color-mix(in srgb, var(--text) 8%, transparent);
+      }
+
+      /* UX 1, Standfirst: the summary under the heading, the section below a
+         plain line that opens it. */
+      .standfirst {
+        margin: 0 0 18px;
+        font-size: 1.375rem;
+        font-style: italic;
+        line-height: 1.5;
+      }
+      .read-section {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.4em;
+        padding: 0;
+        background: none;
+        color: var(--text-secondary);
+        font-size: 1.0625rem;
+      }
+      .read-section:hover {
+        color: var(--text);
+      }
+      .read-section svg,
+      .open-all svg {
+        align-self: center;
+        width: 0.8em;
+        height: 0.8em;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .read-section[aria-expanded='true'] svg {
+        transform: rotate(180deg);
+      }
+      .read-section + .essay-body {
+        margin-top: 24px;
+      }
+
+      /* UX 2, Outline: the summary, then each paragraph down to its first
+         sentence, with the … pills of collapsed text. */
+      .outline-summary {
+        margin: 0 0 20px;
+        padding-left: 16px;
+        border-left: 2px solid var(--border);
+      }
+      .outline-line .emph-more {
+        margin-left: 0.2em;
+      }
+      .open-all {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.4em;
+        margin-top: 4px;
+        padding: 0;
+        background: none;
+        color: var(--text-secondary);
+        font-size: 1.0625rem;
+      }
+      .open-all:hover {
+        color: var(--text);
+      }
+
+      /* UX 3, Margin note: the section stays open, the summary sits beside it
+         and stays in view while you read. On a narrow screen it sits under the
+         heading. */
+      .margin-stage {
+        display: grid;
+        grid-template-areas:
+          'heading note'
+          'text note';
+        grid-template-columns: minmax(0, 580px) 240px;
+        column-gap: 44px;
+        max-width: none;
+      }
+      .margin-stage h2 {
+        grid-area: heading;
+      }
+      .margin-stage .essay-body {
+        grid-area: text;
+      }
+      .margin-note {
+        grid-area: note;
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        margin: 6px 0 0;
+        padding-left: 16px;
+        border-left: 2px solid var(--border);
+        font-size: 1.0625rem;
+        line-height: 1.5;
+      }
+      @media (max-width: 900px) {
+        .margin-stage {
+          grid-template-areas: 'heading' 'note' 'text';
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .margin-note {
+          position: static;
+          margin: 0 0 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="explore">
+      <header class="explore-head">
+        <p class="explore-kicker">Reading Long Form · design options</p>
+        <h1>Collapse sections into summaries</h1>
+        <p class="explore-lede">Today’s fold reads like a paywall: the section fades out under a floating white card with a button, the same shape as “subscribe to keep reading”. Three color treatments keep the fold but drop that look. Three UX treatments rethink it. Each one uses section 5 and opens on a click.</p>
+        <ul class="explore-nav">
+          <li><a href="#current">Current</a></li>
+          <li><a href="#paper">Color 1 · Paper</a></li>
+          <li><a href="#teal">Color 2 · Teal</a></li>
+          <li><a href="#grey">Color 3 · Grey</a></li>
+          <li><a href="#standfirst">UX 1 · Standfirst</a></li>
+          <li><a href="#outline">UX 2 · Outline</a></li>
+          <li><a href="#margin">UX 3 · Margin note</a></li>
+        </ul>
+        <button class="explore-theme" type="button">Switch to dark</button>
+      </header>
+
+      <section class="option" id="current" data-kind="fold">
+        <div class="option-head"><h2 class="option-name">Current</h2><button class="option-reset" type="button">Reset</button></div>
+        <p class="option-note">For comparison. Faded text, then a white card that floats over it with a shadow and a button.</p>
+      </section>
+      <section class="option paper" id="paper" data-kind="fold">
+        <div class="option-head"><h2 class="option-name">Color 1 · Paper</h2><button class="option-reset" type="button">Reset</button></div>
+        <p class="option-note">No card. The summary is a band of the page itself across the column, between two rules, like a pull quote set into the fold rather than something laid on top of it.</p>
+      </section>
+      <section class="option teal" id="teal" data-kind="fold">
+        <div class="option-head"><h2 class="option-name">Color 2 · Teal</h2><button class="option-reset" type="button">Reset</button></div>
+        <p class="option-note">Flat, and in the teal that Emphasize key information uses for key sentences, text included. It reads as one of the reading ideas at work, not a gate.</p>
+      </section>
+      <section class="option grey" id="grey" data-kind="fold">
+        <div class="option-head"><h2 class="option-name">Color 3 · Grey</h2><button class="option-reset" type="button">Reset</button></div>
+        <p class="option-note">The same soft grey as the … pills on collapsed text, with no border or shadow: the whole section becomes one big collapsed run.</p>
+      </section>
+      <section class="option" id="standfirst" data-kind="standfirst">
+        <div class="option-head"><h2 class="option-name">UX 1 · Standfirst</h2><button class="option-reset" type="button">Reset</button></div>
+        <p class="option-note">No fade and no card. The summary sits under the heading like a magazine standfirst, in my voice, and a plain line below it opens the section, with how long it is.</p>
+      </section>
+      <section class="option" id="outline" data-kind="outline">
+        <div class="option-head"><h2 class="option-name">UX 2 · Outline</h2><button class="option-reset" type="button">Reset</button></div>
+        <p class="option-note">Nothing sits behind a card. The summary leads, then every paragraph shrinks to its first sentence with a … pill, so you see the shape of the argument and open any part of it.</p>
+      </section>
+      <section class="option" id="margin" data-kind="margin">
+        <div class="option-head"><h2 class="option-name">UX 3 · Margin note</h2><button class="option-reset" type="button">Reset</button></div>
+        <p class="option-note">Nothing is hidden. The section stays open and the summary sits beside it in the margin, staying in view as you read. On a phone it sits under the heading.</p>
+      </section>
+    </main>
+
+    <template id="section-text">
+      <p>Even if everything in the preceding four sections goes well—not only do we alleviate disease, poverty, and inequality, but liberal democracy becomes the dominant form of government, and existing liberal democracies become better versions of themselves—at least one important question still remains. “It’s great we live in such a technologically advanced world as well as a fair and decent one”, someone might object, “but with AIs doing everything, how will humans have meaning? For that matter, how will they survive economically?”.</p>
+      <p>I think this question is more difficult than the others. I don’t mean that I am necessarily more pessimistic about it than I am about the other questions (although I do see challenges). I mean that it is fuzzier and harder to predict in advance, because it relates to macroscopic questions about how society is organized that tend to resolve themselves only over time and in a decentralized manner. For example, historical hunter-gatherer societies might have imagined that life is meaningless without hunting and various kinds of hunting-related religious rituals, and would have imagined that our well-fed technological society is devoid of purpose. They might also have not understood how our economy can provide for everyone, or what function people can usefully serve in a mechanized society.</p>
+      <p>Nevertheless, it’s worth saying at least a few words, while keeping in mind that the brevity of this section is not at all to be taken as a sign that I don’t take these issues seriously—on the contrary, it is a sign of a lack of clear answers.</p>
+      <p>On the question of meaning, I think it is very likely a mistake to believe that tasks you undertake are meaningless simply because an AI could do them better. Most people are not the best in the world at anything, and it doesn’t seem to bother them particularly much. Of course today they can still contribute through comparative advantage, and may derive meaning from the economic value they produce, but people also greatly enjoy activities that produce no economic value. I spend plenty of time playing video games, swimming, walking around outside, and talking to friends, all of which generates zero economic value. I might spend a day trying to get better at a video game, or faster at biking up a mountain, and it doesn’t really matter to me that someone somewhere is much better at those things. In any case I think meaning comes mostly from human relationships and connection, not from economic labor. People do want a sense of accomplishment, even a sense of competition, and in a post-AI world it will be perfectly possible to spend years attempting some very difficult task with a complex strategy, similar to what people do today when they embark on research projects, try to become Hollywood actors, or found companies. The facts that (a) an AI somewhere could in principle do this task better, and (b) this task is no longer an economically rewarded element of a global economy, don’t seem to me to matter very much.</p>
+      <p>The economic piece actually seems more difficult to me than the meaning piece. By “economic” in this section I mean the possible problem that <em>most or all</em> humans may not be able to contribute meaningfully to a sufficiently advanced AI-driven economy. This is a more macro problem than the separate problem of inequality, especially inequality in access to the new technologies, which I discussed in Section 3.</p>
+      <p>First of all, in the short term I agree with arguments that comparative advantage will continue to keep <a href="https://www.noahpinion.blog/p/plentiful-high-paying-jobs-in-the">humans relevant</a> and in fact increase their productivity, and may even in some ways <a href="https://www.nber.org/papers/w31161">level the playing field between humans</a>. As long as AI is only better at 90% of a given job, the other 10% will cause humans to become highly leveraged, increasing compensation and in fact creating a bunch of new human jobs complementing and amplifying what AI is good at, such that the “10%” <a href="https://en.wikipedia.org/wiki/Lump_of_labour_fallacy">expands to continue to employ almost everyone</a>. In fact, even if AI can do 100% of things better than humans, but it remains inefficient or expensive at some tasks, or if the resource <em>inputs</em> to humans and AIs are meaningfully different, then the logic of comparative advantage continues to apply. One area humans are likely to maintain a relative (or even absolute) advantage for a significant time is the physical world. Thus, I think that the human economy may continue to make sense even a little past the point where we reach “a country of geniuses in a datacenter”.</p>
+      <p>However, I do think in the long run AI will become so broadly effective and so cheap that this will no longer apply. At that point our current economic setup will no longer make sense, and there will be a need for a broader societal conversation about how the economy should be organized.</p>
+      <p>While that might sound crazy, the fact is that civilization has successfully navigated major economic shifts in the past: from hunting and gathering to farming, farming to feudalism, and feudalism to industrialism. I suspect that some new and stranger thing will be needed, and that it’s something no one today has done a good job of envisioning. It could be as simple as a large universal basic income for everyone, although I suspect that will only be a small part of a solution. It could be a capitalist economy of AI systems, which then give out resources (huge amounts of them, since the overall economic pie will be gigantic) to humans based on some secondary economy of what the AI systems think makes sense to reward in humans (based on some judgment ultimately derived from human values). Perhaps the economy runs on <a href="https://en.wikipedia.org/wiki/Down_and_Out_in_the_Magic_Kingdom">Whuffie points</a>. Or perhaps humans will continue to be economically valuable after all, in some way not anticipated by the usual economic models. All of these solutions have tons of possible problems, and it’s not possible to know whether they will make sense without lots of iteration and experimentation. And as with some of the other challenges, we will likely have to fight to get a good outcome here: exploitative or dystopian directions are clearly also possible and have to be prevented. Much more could be written about these questions and I hope to do so at some later time.</p>
+    </template>
+
+    <script>
+      const SUMMARY = "I think meaning comes mostly from human relationships and connection, not from economic labor, so AI doing things better shouldn’t empty our lives. The economic question is harder: in the long run AI may become so effective and cheap that we need a new conversation about how the economy should be organized.";
+      const TITLE = '5. Work and meaning';
+      const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+      const paragraphs = () => [...document.getElementById('section-text').content.cloneNode(true).children];
+      const el = (tag, className, text) => {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text) node.textContent = text;
+        return node;
+      };
+      // The stage each option draws in: the essay's own type and spacing.
+      const stageFor = (className = '') => {
+        const stage = el('div', `stage essay ${className}`);
+        stage.append(el('h2', '', TITLE));
+        return stage;
+      };
+      const body = nodes => {
+        const div = el('div', 'essay-body');
+        div.append(...nodes);
+        return div;
+      };
+
+      // Today's fold: the opening at 70%, fading out, under the summary card.
+      function fold() {
+        const stage = stageFor();
+        const wrapper = el('div', 'section-fold');
+        const content = el('div', 'section-fold-content');
+        content.append(body(paragraphs()));
+        const callout = el('div', 'section-fold-callout');
+        callout.setAttribute('role', 'button');
+        callout.tabIndex = 0;
+        const more = el('p', 'section-fold-more');
+        const pill = el('span', 'section-fold-pill');
+        pill.append(el('span', 'emph-dots', '…'));
+        more.append(pill);
+        callout.append(el('p', 'section-fold-summary', SUMMARY), more);
+        wrapper.append(content, callout);
+        wrapper.addEventListener('click', () => wrapper.classList.add('open'));
+        callout.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            wrapper.classList.add('open');
+          }
+        });
+        stage.append(wrapper);
+        return stage;
+      }
+
+      // The summary as a standfirst, then a line that opens the section.
+      function standfirst() {
+        const stage = stageFor();
+        const words = paragraphs().reduce((sum, p) => sum + p.textContent.split(/\s+/).length, 0);
+        const minutes = Math.max(1, Math.round(words / 230));
+        const button = el('button', 'read-section');
+        button.type = 'button';
+        button.setAttribute('aria-expanded', 'false');
+        const label = el('span', '', 'Read the section');
+        const meta = el('span', '', `· ${paragraphs().length} paragraphs, about ${minutes} minutes`);
+        button.append(label, meta);
+        button.insertAdjacentHTML('beforeend', CHEVRON);
+        const section = body(paragraphs());
+        section.hidden = true;
+        button.addEventListener('click', () => {
+          section.hidden = !section.hidden;
+          button.setAttribute('aria-expanded', String(!section.hidden));
+          label.textContent = section.hidden ? 'Read the section' : 'Hide the section';
+        });
+        stage.append(el('p', 'standfirst', SUMMARY), button, section);
+        return stage;
+      }
+
+      // The summary, then each paragraph down to its first sentence.
+      function outline() {
+        const stage = stageFor('emphasis-collapse');
+        const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
+        const lines = paragraphs().map(paragraph => {
+          const sentences = [...segmenter.segment(paragraph.textContent)];
+          // A one-sentence paragraph shows whole, with nothing to open.
+          if (sentences.length === 1) return { line: paragraph, open: () => {} };
+          const first = sentences[0].segment.trim();
+          const line = el('p', 'outline-line', first);
+          const pill = el('span', 'emph-more');
+          pill.setAttribute('role', 'button');
+          pill.tabIndex = 0;
+          pill.setAttribute('aria-label', 'Show the full paragraph');
+          pill.append(el('span', 'emph-dots', '…'));
+          line.append(' ', pill);
+          const open = () => line.replaceWith(paragraph);
+          pill.addEventListener('click', open);
+          pill.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              open();
+            }
+          });
+          return { line, open };
+        });
+        const all = el('button', 'open-all');
+        all.type = 'button';
+        all.append(el('span', '', 'Open every paragraph'));
+        all.insertAdjacentHTML('beforeend', CHEVRON);
+        all.addEventListener('click', () => {
+          lines.forEach(({ open }) => open());
+          all.remove();
+        });
+        stage.append(el('p', 'outline-summary', SUMMARY), body(lines.map(({ line }) => line)), all);
+        return stage;
+      }
+
+      // The open section with the summary beside it.
+      function margin() {
+        const stage = stageFor('margin-stage');
+        stage.append(body(paragraphs()), el('p', 'margin-note', SUMMARY));
+        return stage;
+      }
+
+      const builders = { fold, standfirst, outline, margin };
+      for (const option of document.querySelectorAll('.option')) {
+        const draw = () => {
+          option.querySelector('.stage')?.remove();
+          option.append(builders[option.dataset.kind]());
+        };
+        draw();
+        option.querySelector('.option-reset').addEventListener('click', draw);
+      }
+
+      const theme = document.querySelector('.explore-theme');
+      const label = () =>
+        (theme.textContent = `Switch to ${document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'}`);
+      label();
+      theme.addEventListener('click', () => {
+        const root = document.documentElement;
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        label();
+      });
+    </script>
+  </body>
+</html>
