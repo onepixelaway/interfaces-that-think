@@ -1,13 +1,17 @@
-// Served at /eval/ by scripts/dev-server.py, on the editor's local origin, so it
-// can read the key the editor saved. The key stays in the browser and is used by
-// the same transport as the editor.
-import { readSavedKey } from '../key-storage.js';
+// The evaluation page accepts its own key; it never loads an editor credential.
+import { removeLegacyKey } from '../key-storage.js';
+const keyInput = document.querySelector('#api-key');
+const cleanLegacyKey = () => {
+  document.querySelector('#key-storage-warning').hidden = removeLegacyKey();
+};
+cleanLegacyKey();
 const run = document.querySelector('#run');
 const stop = document.querySelector('#stop');
 const status = document.querySelector('#status');
 const results = document.querySelector('#results');
 status.textContent = 'Runner loaded';
 let client;
+let runKey = '';
 let stopped = false;
 document.querySelector('#save').onclick = async () => {
   try {
@@ -25,16 +29,24 @@ document.querySelector('#save').onclick = async () => {
 };
 stop.onclick = () => {
   stopped = true;
+  runKey = '';
   client?.disconnect();
+  keyInput.value = '';
+  cleanLegacyKey();
 };
+window.addEventListener('pagehide', () => stop.onclick());
 run.onclick = async () => {
   if (!['localhost', '127.0.0.1'].includes(location.hostname)) return;
+  runKey = keyInput.value.trim();
+  keyInput.value = '';
+  keyInput.disabled = true;
   run.disabled = true;
   stop.disabled = false;
   stopped = false;
   const report = { date: new Date().toISOString(), cases: [] };
   try {
-    if (!readSavedKey()) throw new Error('Connect the editor first to save a key.');
+    if (!runKey.startsWith('sk-') || runKey.length < 20)
+      throw new Error('Enter an OpenAI API key for this run.');
     const suite = document.querySelector('#suite').value;
     const cases = await fetch(suite === 'holdout' ? './holdout.json' : './cases.json').then(r =>
       r.json(),
@@ -55,8 +67,9 @@ run.onclick = async () => {
         }
         throw error;
       }
+      if (stopped) break;
       client = new transport.RealtimeCompose(() => {});
-      await client.connect(readSavedKey());
+      await client.connect(runKey);
       for (const item of cases) {
         if (stopped) break;
         status.textContent = `${variant}: ${item.id}`;
@@ -98,6 +111,9 @@ run.onclick = async () => {
   } catch (error) {
     status.textContent = error.message;
   } finally {
+    runKey = '';
+    keyInput.value = '';
+    keyInput.disabled = false;
     client?.disconnect();
     run.disabled = false;
     stop.disabled = true;

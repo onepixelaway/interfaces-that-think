@@ -119,10 +119,11 @@
             <span class="model-name">Model <strong>gpt-realtime-2.1-mini</strong></span>
           </div>
           <div class="key-field">
-            <input id="api-key" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false" required maxlength="512" aria-describedby="key-privacy key-error">
-            <button id="forget-key" type="button" hidden>Remove key from this browser</button>
+            <input id="api-key" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false" required maxlength="512" aria-describedby="key-privacy key-storage-warning key-error">
+            <button id="forget-key" type="button" hidden>Clear key</button>
           </div>
-          <p id="key-privacy" class="key-note">Your key is <strong>only</strong> saved in this browser on this device and used to reconnect after refresh.<br>It is stored unencrypted; use Remove key from this browser to delete it. Your key and document text go directly to OpenAI. API usage is billed to your account.</p>
+          <p id="key-privacy" class="key-note">Your key is used only for this connection and is not saved in browser storage. Enter it again after disconnecting or reloading.<br>Your key and document text go directly to OpenAI. API usage is billed to your account.</p>
+          <p id="key-storage-warning" class="key-error" role="alert" hidden>Could not remove a key saved by an earlier version. Clear this site’s data in your browser settings to remove it. This version does not load or save keys.</p>
           <p id="key-error" class="key-error" role="alert"></p>
           <div class="dialog-actions">
             <button id="disconnect" type="button" hidden>Disconnect</button>
@@ -133,6 +134,6 @@
       </section>
     </dialog>
 
-    <script type="module" src="app.js?v=1722a3c68080"></script>
+    <script type="module" src="app.js?v=4051934d8872"></script>
   </body>
 </html>

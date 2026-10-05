@@ -2,7 +2,7 @@
 http.server on some machines, and disables caching so edits show on reload.
 
 /eval/ is served from eval/ on the same origin, so the evaluation runner can
-use the editor's saved key and modules without ever being copied into dist/."""
+use the editor's modules without ever being copied into dist/."""
 import functools
 import os
 import http.server

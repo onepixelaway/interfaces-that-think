@@ -14,7 +14,6 @@ import {
   completionAnchor,
 } from '../dist/compose-core.js';
 import { RealtimeCompose } from '../dist/realtime.js';
-import { readSavedKey, saveKey, forgetKey } from '../dist/key-storage.js';
 test('request uses the unchanged context, and sentence intent', () => {
   const before = 'The launch went well. ';
   const after = '\nBest,\nSam';
@@ -293,49 +292,6 @@ test('default fetch preserves the browser global receiver', async () => {
   }
 });
 
-test('key storage survives module reload and forgetting preserves unrelated site data', async () => {
-  const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
-  const data = new Map([['unrelated', 'keep']]);
-  Object.defineProperty(globalThis, 'localStorage', {
-    configurable: true,
-    value: {
-      getItem: key => data.get(key) ?? null,
-      setItem: (key, value) => data.set(key, value),
-      removeItem: key => data.delete(key),
-    },
-  });
-  try {
-    assert.equal(readSavedKey(), '');
-    saveKey('sk-test-not-a-real-key');
-    const reloaded = await import('../dist/key-storage.js?reload-test');
-    assert.equal(reloaded.readSavedKey(), 'sk-test-not-a-real-key');
-    saveKey('sk-replacement-not-a-real-key');
-    assert.equal(reloaded.readSavedKey(), 'sk-replacement-not-a-real-key');
-    forgetKey();
-    assert.equal(reloaded.readSavedKey(), '');
-    assert.deepEqual([...data], [['unrelated', 'keep']]);
-  } finally {
-    if (original) Object.defineProperty(globalThis, 'localStorage', original);
-    else delete globalThis.localStorage;
-  }
-});
-test('blocked browser storage permits startup and reports failed saves and removals', () => {
-  const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
-  Object.defineProperty(globalThis, 'localStorage', {
-    configurable: true,
-    get() {
-      throw new Error('Blocked');
-    },
-  });
-  try {
-    assert.equal(readSavedKey(), '');
-    assert.throws(() => saveKey('sk-test'), /Blocked/);
-    assert.throws(forgetKey, /Blocked/);
-  } finally {
-    if (original) Object.defineProperty(globalThis, 'localStorage', original);
-    else delete globalThis.localStorage;
-  }
-});
 test('matching stream deltas are delivered before response.done and cancelled deltas are ignored', async () => {
   const { client, socket } = await setup();
   const previews = [];
