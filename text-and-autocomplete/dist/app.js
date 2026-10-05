@@ -14,7 +14,7 @@ import {
   plainSpaces,
 } from './compose-core.js?v=2b7382bcbabf';
 import { RealtimeCompose } from './realtime.js?v=b4675acd09d9';
-import { readSavedKey, saveKey, forgetKey } from './key-storage.js?v=d7465de288af';
+import { removeLegacyKey } from './key-storage.js?v=8fc4059c72f9';
 import { SelectionRewrite } from './selection-rewrite.js?v=48af245f0686';
 import { SelectionCombine } from './selection-combine.js?v=833383fe8ed4';
 
@@ -785,14 +785,12 @@ function gate() {
   $('close-settings').hidden = !client.ready;
   if (!client.ready && !dialog.open && rewriter) openSettings();
 }
-// The remove button shows only while a key is in the field, so it always refers
-// to a key the person can see. A key stored in this browser is shown there.
+// Keys live only in the input and the in-flight connection request.
 function updateRemoveKey() {
   $('forget-key').hidden = !keyInput.value;
 }
-function showStoredKey() {
-  if (!$('key-submit').disabled) keyInput.value = readSavedKey();
-  updateRemoveKey();
+function cleanLegacyKey() {
+  $('key-storage-warning').hidden = removeLegacyKey();
 }
 keyInput.addEventListener('input', updateRemoveKey);
 function openSettings() {
@@ -800,7 +798,7 @@ function openSettings() {
   disarm('settings-open');
   $('key-error').textContent = '';
   $('disconnect').hidden = !client.ready;
-  showStoredKey();
+  updateRemoveKey();
   dialog.showModal();
   rewriter?.update();
 }
@@ -815,6 +813,7 @@ function disconnect() {
   connectionAttempt++;
   disarm('disconnect');
   client.disconnect();
+  cleanLegacyKey();
   endCycle('disconnect');
   keyInput.value = '';
   updateRemoveKey();
@@ -832,7 +831,7 @@ dialog.addEventListener('close', () => {
   if ($('key-submit').disabled) disconnect();
   gate();
 });
-async function connectKey(key, automatic = false) {
+async function connectKey(key) {
   const attempt = ++connectionAttempt;
   setConnecting(true);
   $('key-error').textContent = '';
@@ -841,19 +840,13 @@ async function connectKey(key, automatic = false) {
   try {
     await client.connect(key);
     if (attempt !== connectionAttempt) return;
-    let message =
+    const message =
       'Connected. Type for suggestions, select text and drag its handle, double-click it to rephrase, or drag it onto another sentence to combine them.';
-    try {
-      saveKey(key);
-    } catch {
-      message =
-        'Connected for this session. Browser storage is unavailable, so your key could not be saved.';
-    }
     setConnecting(false);
     (preferMulti ? multi : smart).checked = true;
     showNotice(message);
     if (dialog.open) dialog.close();
-    if (!automatic) restore();
+    restore();
   } catch (error) {
     if (attempt !== connectionAttempt) return;
     const message =
@@ -861,13 +854,11 @@ async function connectKey(key, automatic = false) {
     $('key-error').textContent = message;
     showNotice(message);
   } finally {
+    key = '';
     if (attempt === connectionAttempt) {
       keyInput.value = '';
       setConnecting(false);
-      // A stored key that fails on load (for example, one that was revoked) stays
-      // in the field so it can be retried or removed.
-      if (automatic && !client.ready) showStoredKey();
-      else updateRemoveKey();
+      updateRemoveKey();
     }
   }
 }
@@ -883,25 +874,12 @@ $('key-form').onsubmit = event => {
 };
 $('disconnect').onclick = () => {
   disconnect();
-  showStoredKey();
-  showNotice(
-    readSavedKey()
-      ? 'Disconnected. Your key stays in this browser for next time.'
-      : 'Disconnected.',
-  );
+  showNotice('Disconnected. Enter your key again to reconnect.');
 };
 $('forget-key').onclick = () => {
   disconnect();
-  try {
-    forgetKey();
-  } catch {
-    $('key-error').textContent =
-      'Could not remove the key. Clear this site’s data in your browser settings.';
-    return;
-  }
-  updateRemoveKey();
   $('key-error').textContent = '';
-  showNotice('Your key was removed from this browser.');
+  showNotice('Key cleared. Enter a key to connect.');
 };
 resize.onchange = () => {
   trace('resize-toggled', { enabled: resize.checked });
@@ -1036,8 +1014,7 @@ window.getSelection().removeAllRanges();
 window.getSelection().addRange(initialRange);
 savedRange = initialRange;
 gate();
-const savedKey = readSavedKey();
-if (savedKey) void connectKey(savedKey, true);
+cleanLegacyKey();
 if (document.modelContext?.registerTool) {
   const lifecycle = new AbortController();
   try {

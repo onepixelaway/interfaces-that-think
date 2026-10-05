@@ -10,7 +10,10 @@
   </style>
 
   <h1>Text and Autocomplete evaluation</h1>
-  <p>Runs synthetic writing cases through the real Realtime client using this browser’s saved key. Only test text is sent. Results contain no credentials. API usage is billed normally.</p>
+  <p>Runs synthetic writing cases through the real Realtime client using the key you enter for this run. Only test text is sent. Results contain no credentials. API usage is billed normally.</p>
+  <p><label>OpenAI API key <input id="api-key" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false" maxlength="512" aria-describedby="key-privacy key-storage-warning"></label></p>
+  <p id="key-privacy">The key is kept in memory for this run only. Enter it again for each run or after reloading.</p>
+  <p id="key-storage-warning" role="alert" hidden>Could not remove a key saved by an earlier version. Clear this site’s data in your browser settings to remove it. This version does not load or save keys.</p>
   <label>Run <select id="variant"><option value="both">Both versions</option><option value="candidate">Candidate only</option></select></label>
   <label>Cases <select id="suite"><option value="cases">Development set</option><option value="holdout">Held-out set</option></select></label>
   <button id="run">Run comparison</button> <button id="stop" disabled>Stop</button>

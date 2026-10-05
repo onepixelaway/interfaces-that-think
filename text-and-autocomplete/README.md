@@ -16,7 +16,9 @@ AI edits go through the browser's undo, so Undo restores the original. Documents
 
 ## How it works
 
-The app talks to [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini) over OpenAI's [Realtime WebSocket API](https://developers.openai.com/api/docs/guides/voice-websockets?api=realtime). Each request sends the whole document, which is limited to 12,000 characters, split at the caret or selection, with no conversation history. Your key goes only from your browser to OpenAI, which returns a short-lived token for the session. The key is stored, unencrypted, in this browser's localStorage so a refresh reconnects; **Remove key from this browser** in the connect dialog deletes it. localStorage is shared by every page on the same origin, so if you host the prototype, give it its own origin (such as a subdomain) rather than a folder of a site that runs other scripts. There are no external scripts, fonts, or analytics.
+The app talks to [`gpt-realtime-2.1-mini`](https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini) over OpenAI's [Realtime WebSocket API](https://developers.openai.com/api/docs/guides/voice-websockets?api=realtime). Each request sends the whole document, which is limited to 12,000 characters, split at the caret or selection, with no conversation history. Your key goes only from your browser to OpenAI, which returns a short-lived token for the session. The primary key is used in memory for the connection request and is not saved in localStorage or sessionStorage. Disconnecting or reloading requires entering it again; refreshing no longer reconnects automatically. **Clear key** clears the input and disconnects. Earlier versions saved a key in localStorage: opening this version of the editor or evaluation page attempts to delete only that legacy entry, without reading or using it. If browser storage blocks deletion, the page asks you to clear this site's data in browser settings. Other site data is left alone.
+
+Memory-only handling avoids keeping the key between visits; it does not protect a key in use from scripts running on the page, browser extensions with access, or a compromised browser. If you host the prototype, give it its own origin (such as a subdomain) rather than a folder of a site that runs other scripts. There are no external scripts, fonts, or analytics.
 
 In browsers that support WebMCP, the page also registers an `update_document` tool so a browser agent can replace the document. That tool sends nothing to OpenAI.
 
@@ -31,7 +33,7 @@ Language models can't count characters reliably, so when resizing, the app measu
 | `selection-rewrite.js`, `rewrite-preview.js` | Resize handle and in-place previews |
 | `selection-combine.js` | Drag-to-combine interaction |
 | `realtime.js` | WebSocket connection to OpenAI |
-| `key-storage.js`, `diagnostics.js` | Stored key and debug log |
+| `key-storage.js`, `diagnostics.js` | Legacy key cleanup and debug log |
 
 ## Run
 
@@ -55,7 +57,7 @@ Run `node scripts/version-assets.mjs` so browsers load changed files instead of 
 
 ## Evaluate autocomplete
 
-`eval/` holds 24 development cases and 12 held-out cases that run Tab autocomplete (one suggestion per request) against the real model. With the dev server running, open `http://localhost:4174/eval/`. It uses the key the editor stored, so usage is billed to it. To save results, also run `node scripts/eval-results-server.mjs` and click **Save report locally**; reports go to `eval/runs/`. To compare with an older version, copy its JavaScript modules into `eval/baseline/`; without them, **Both versions** runs only the current one and says so. Git ignores both folders.
+`eval/` holds 24 development cases and 12 held-out cases that run Tab autocomplete (one suggestion per request) against the real model. With the dev server running, open `http://localhost:4174/eval/`. Enter a key directly in the evaluation page for each run; it is kept in memory until the run finishes and is cleared on completion, failure, or stopping. API usage is billed to that key. To save results, also run `node scripts/eval-results-server.mjs` and click **Save report locally**; reports go to `eval/runs/`. To compare with an older version, copy its JavaScript modules into `eval/baseline/`; without them, **Both versions** runs only the current one and says so. Git ignores both folders.
 
 ## Debug log
 
