@@ -79,7 +79,7 @@ function showSubject() {
 }
 function reset() {
   body.value = initial;
-  $('recipient').value = 'grandpa.joe@gmail.com';
+  $('recipient').value = 'grandpa.joe@example.com';
   $('subject').value = 'Movie Night';
   showSubject();
   dismissed = '';
@@ -108,8 +108,11 @@ body.addEventListener('compositionend', () => {
 body.addEventListener('keydown', event => {
   if (event.key === 'Tab' && !event.shiftKey && suggestion && !composing) {
     event.preventDefault();
-    const at = body.selectionStart;
-    body.setRangeText(suggestion, at, at, 'end');
+    // Typed in, so undo takes it back; setRangeText where that isn't supported.
+    if (!document.execCommand('insertText', false, suggestion)) {
+      const at = body.selectionStart;
+      body.setRangeText(suggestion, at, at, 'end');
+    }
     dismissed = '';
     render();
   }

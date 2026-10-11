@@ -13,6 +13,8 @@ Thumbs.db
 # Dependencies, logs, and build output (the prototypes have none checked in;
 # each dist/ folder is hand-written source and stays tracked)
 node_modules/
+__pycache__/
+*.pyc
 npm-debug.log*
 *.log
 coverage/

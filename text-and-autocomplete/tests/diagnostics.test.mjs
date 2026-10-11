@@ -9,7 +9,7 @@ test('diagnostics retain a bounded history across reloads and redact credentials
   const log = createDiagnostics({ storage, now: () => '2026-09-18T01:00:00Z' });
   for (let index = 0; index < 1300; index++) log.record('input', { index });
   log.record('validation', {
-    raw: 'sk-secret_value and ek-token-value',
+    raw: 'sk-secret_value, ek-token-value, and ek_session_value',
     long: 'a'.repeat(1000),
     headers: { Authorization: 'secret' },
   });
@@ -18,7 +18,7 @@ test('diagnostics retain a bounded history across reloads and redact credentials
   const events = reload.snapshot().events;
   assert.equal(events.length, 1200);
   assert.equal(events[0].index, 101);
-  assert.equal(events.at(-1).raw, '[redacted-key] and [redacted-key]');
+  assert.equal(events.at(-1).raw, '[redacted-key], [redacted-key], and [redacted-key]');
   assert.equal(events.at(-1).long.length, 800);
   assert.equal(events.at(-1).headers, undefined);
   events[0].index = -1;

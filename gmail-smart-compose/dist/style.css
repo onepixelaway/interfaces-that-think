@@ -120,6 +120,8 @@ header {
   white-space: pre-wrap;
   overflow-wrap: break-word;
   tab-size: 4;
+  /* The same width for text in both, even once the message scrolls. */
+  scrollbar-gutter: stable;
 }
 #body {
   position: absolute;

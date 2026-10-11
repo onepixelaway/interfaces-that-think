@@ -1,0 +1,1844 @@
+@font-face {
+  font-family: 'DM Sans';
+  src: url('fonts/DMSans.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('fonts/DMSans-Italic.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pixelta';
+  src: url('fonts/Pixelta.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Black, like X's dark mode, with a reading column like Medium's. */
+:root {
+  color-scheme: dark;
+  --background: #000;
+  --raised: #16181c;
+  --hover: #ffffff0f;
+  --text: #e7e9ea;
+  --text-secondary: #71767b;
+  --border: #2f3336;
+  --accent: #1d9bf0;
+  --accent-soft: #1d9bf026;
+  --underline: #e7e9ea47;
+  --underline-hot: #e7e9eab3;
+  /* Google Docs marks reacted-to text yellow; here it's a faint glow of it. */
+  --reacted: #ffd40026;
+  --glow: 0 0 15px #ffffff1f, 0 0 3px 1px #ffffff26;
+  --error: #f4212e;
+  --panel-width: 420px;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: #1d9bf066;
+}
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+a {
+  color: inherit;
+  text-decoration-color: var(--text-secondary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+a:hover {
+  text-decoration-color: var(--text);
+}
+svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Text for screen readers only. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  background: #000000d9;
+  backdrop-filter: blur(12px);
+}
+.series-button {
+  padding: 4px 0;
+  font-family: 'Pixelta', 'DM Sans', sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.series-button:hover {
+  color: var(--text-secondary);
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.intelligence summary,
+.original-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.intelligence summary:hover,
+.original-link:hover,
+.intelligence[open] summary {
+  background: var(--hover);
+}
+.original-link svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  stroke: none;
+}
+.intelligence {
+  position: relative;
+}
+.intelligence summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.intelligence summary::-webkit-details-marker {
+  display: none;
+}
+.intelligence summary svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-secondary);
+}
+.intelligence[open] summary svg {
+  transform: rotate(180deg);
+}
+.spark {
+  font-size: 1.2em;
+  line-height: 0;
+}
+.intelligence-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: calc(100vh - 80px);
+  overflow: auto;
+  border-radius: 16px;
+  background: var(--background);
+  box-shadow: var(--glow);
+  font-size: 0.9375rem;
+}
+.menu-group {
+  padding: 6px 0;
+}
+.menu-group + .menu-group {
+  border-top: 1px solid var(--border);
+}
+.menu-group > label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.menu-group > label:hover,
+.reader-row:hover {
+  background: var(--hover);
+}
+.menu-heading {
+  margin: 6px 16px 4px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.intelligence-menu input[type='checkbox'],
+.intelligence-menu input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+  flex: none;
+}
+/* A style's own options sit under it, greyed out until it's chosen. */
+.menu-group > label.sub-option {
+  padding-left: 44px;
+}
+.menu-group > label:has(input:disabled) {
+  color: var(--text-secondary);
+  opacity: 0.5;
+  cursor: default;
+}
+.menu-group > label:has(input:disabled):hover {
+  background: none;
+}
+.reader-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reader-row {
+  display: flex;
+  align-items: center;
+}
+.reader-row label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 4px 8px 16px;
+  cursor: pointer;
+}
+.reader-text {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+.reader-text b,
+.reader-text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reader-text span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+.reader-row.reading .reader-text span {
+  color: var(--accent);
+}
+.reader-row:has(input:not(:checked)) .avatar,
+.reader-row:has(input:not(:checked)) .reader-text {
+  opacity: 0.45;
+}
+.edit-reader {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-right: 10px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  flex: none;
+}
+.edit-reader:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.edit-reader svg {
+  width: 16px;
+  height: 16px;
+}
+.menu-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 8px 2px;
+}
+.menu-actions button {
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.menu-actions button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+/* Avatars: a reader's face, like a profile picture. */
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex: none;
+}
+/* A reader's avatar is their face, as on the reading dot (critters.js). */
+.avatar .portrait {
+  width: 100%;
+  height: 100%;
+}
+
+/* The article */
+.page {
+  position: relative;
+  max-width: 626px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+}
+.cover {
+  margin: 0 0 40px;
+}
+.cover img,
+.article-body figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.article-title {
+  margin: 0 0 24px;
+  font-size: 2.625rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.byline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 28px;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+}
+.byline p {
+  margin: 0;
+}
+.byline-avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--raised);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex: none;
+}
+.byline-name {
+  font-weight: 700;
+}
+.byline-name span,
+.byline-meta {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.byline-meta {
+  font-size: 0.9375rem;
+}
+.article-body {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  letter-spacing: -0.003em;
+}
+.article-body p,
+.article-body ul,
+.article-body ol,
+.article-body blockquote,
+.article-body figure {
+  margin: 0 0 1.4em;
+}
+.article-body h2 {
+  margin: 2.4em 0 0.9em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+.article-body h3 {
+  margin: 2em 0 0.8em;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.article-body strong {
+  font-weight: 700;
+}
+.article-body ul,
+.article-body ol {
+  padding-left: 1.6em;
+}
+.article-body li {
+  margin-bottom: 0.5em;
+  padding-left: 0.25em;
+}
+.article-body li::marker {
+  color: var(--text-secondary);
+}
+.article-body blockquote {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 22px;
+  border-left: 3px solid var(--text);
+  font-style: italic;
+}
+.article-body blockquote p {
+  margin: 0;
+}
+.article-body blockquote footer {
+  margin-top: 0.6em;
+  color: var(--text-secondary);
+  font-style: normal;
+  font-size: 1rem;
+}
+.article-body figure {
+  margin: 2em 0;
+}
+.article-body hr {
+  margin: 2.4em auto;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+.sign-off {
+  color: var(--text-secondary);
+}
+.credit {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+.credit p {
+  margin: 0;
+}
+
+/* Comments: a faint underline under words the readers discussed. */
+.comment-anchor {
+  text-decoration-line: underline;
+  text-decoration-color: var(--underline);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-skip-ink: none;
+  cursor: pointer;
+  border-radius: 2px;
+  transition:
+    text-decoration-color 0.15s,
+    background-color 0.15s;
+}
+.comment-anchor.hot {
+  text-decoration-color: var(--underline-hot);
+  background: var(--hover);
+}
+.comment-anchor.active {
+  text-decoration-color: var(--accent);
+  background: var(--accent-soft);
+}
+body.hide-comments .comment-anchor {
+  text-decoration: none;
+  background: none;
+  cursor: auto;
+}
+.reaction-anchor {
+  border-radius: 2px;
+  transition: background-color 0.15s;
+}
+.reaction-anchor.hot {
+  background: var(--reacted);
+}
+
+/* Emoji reactions, as in Google Docs: chips in the margin beside the words they
+   react to, each an emoji and how many reacted with it. On narrower screens
+   they sit inline after the words instead. */
+.reaction-rail {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 4px);
+  width: 156px;
+}
+.reaction-group {
+  position: absolute;
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 156px;
+  transition: top 0.2s ease;
+}
+.reaction-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 9px 0 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--background);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+.reaction-chip .emoji {
+  font-size: 0.9375rem;
+}
+.reaction-chip .count {
+  color: var(--text-secondary);
+}
+.reaction-chip:hover {
+  background: var(--raised);
+  border-color: #536471;
+}
+.reaction-chip.mine {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.reaction-chip.mine .count {
+  color: var(--accent);
+}
+.inline-reactions {
+  display: none;
+  gap: 4px;
+  margin-left: 6px;
+  vertical-align: 2px;
+  text-indent: 0;
+}
+.inline-reactions .reaction-chip {
+  height: 24px;
+  font-size: 0.75rem;
+}
+body.inline-mode .reaction-rail {
+  display: none;
+}
+body.inline-mode .inline-reactions {
+  display: inline-flex;
+}
+body.hide-reactions .reaction-rail,
+body.hide-reactions .inline-reactions {
+  display: none;
+}
+
+/* The hover card: who commented, or who reacted. */
+.hover-card {
+  position: fixed;
+  z-index: 30;
+  max-width: 280px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--background);
+  box-shadow: var(--glow);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.hover-card[hidden] {
+  display: none;
+}
+.hover-avatars {
+  display: flex;
+  margin-bottom: 6px;
+}
+.hover-avatars .avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  box-shadow: 0 0 0 2px var(--background);
+}
+.hover-avatars .avatar + .avatar {
+  margin-left: -6px;
+}
+.hover-card .muted {
+  color: var(--text-secondary);
+}
+
+/* React to any text: select it, and a smiley appears in the margin. */
+.react-picker {
+  position: fixed;
+  z-index: 25;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.react-picker[hidden],
+.react-choices[hidden] {
+  display: none;
+}
+.react-open {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--background);
+  box-shadow: var(--glow);
+  color: var(--text);
+}
+.react-open:hover {
+  color: var(--accent);
+}
+.react-choices {
+  display: grid;
+  grid-template-columns: repeat(5, 34px);
+  padding: 4px;
+  border-radius: 20px;
+  background: var(--background);
+  box-shadow: var(--glow);
+}
+.react-choices button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+.react-choices button:hover,
+.react-choices button:focus-visible {
+  background: var(--raised);
+}
+
+/* The discussion panel: a thread of replies, like a post on X. */
+.thread-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-width);
+  border-left: 1px solid var(--border);
+  background: var(--background);
+}
+.thread-panel[hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .thread-panel:not([hidden]) {
+    animation: panel-in 0.22s ease;
+  }
+}
+@keyframes panel-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+/* The page makes room for the panel, top bar included. */
+body.panel-open {
+  padding-right: var(--panel-width);
+}
+.thread-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 56px;
+  padding: 0 8px 0 16px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.thread-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.thread-count {
+  margin: 2px auto 0 8px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+.icon-button:hover {
+  background: var(--hover);
+}
+.icon-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: none;
+}
+.thread-body {
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.thread-quote {
+  margin: 0;
+  padding: 16px 16px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.thread-quote span {
+  display: block;
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+}
+.thread {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.post {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
+  padding: 12px 16px 0;
+}
+.post-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.post .avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+}
+/* The line that joins a post to its reply. */
+.post:not(:last-child) .post-rail::after {
+  content: '';
+  flex: 1;
+  width: 2px;
+  margin-top: 4px;
+  background: var(--border);
+}
+.post-main {
+  min-width: 0;
+  padding-bottom: 12px;
+}
+.post-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+.post-head b {
+  font-weight: 700;
+}
+.post-head span,
+.post-replying {
+  color: var(--text-secondary);
+}
+.post-replying {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+}
+.post-replying b {
+  color: var(--accent);
+  font-weight: 400;
+}
+.post-text {
+  margin: 4px 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+/* Reading couch: the readers on a couch across the bottom quarter of the
+   screen, over a fade to black, facing the article. We sit behind the couch,
+   so its back is in front and their heads show above it. */
+body.style-row .page {
+  padding-bottom: calc(25vh + 120px);
+}
+.reading-row {
+  /* Three lanes, one per reader, with a gap between them. */
+  --lane-gap: 12px;
+  --lane: min(170px, calc((100vw - 32px - 2 * var(--lane-gap)) / 3));
+  --scene: calc(3 * var(--lane) + 2 * var(--lane-gap));
+  /* How big the readers are, how tall the couch's back, and where they sit. */
+  --critter: min(124px, calc(var(--lane) - 8px));
+  --couch: 70px;
+  --sit: 32px;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 15;
+  height: 25vh;
+  min-height: 190px;
+  /* The couch's arms can run past the screen's edges on a phone; they're cut
+     off there rather than letting the page scroll sideways. */
+  overflow-x: clip;
+  overflow-y: visible;
+  pointer-events: none;
+}
+/* The fade to black behind the couch, reaching well up the screen. */
+.reading-row::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 48vh;
+  min-height: 340px;
+  background: linear-gradient(to bottom, #0000 0%, #000000a6 40%, #000 72%);
+}
+.reading-row[hidden] {
+  display: none;
+}
+.couch-scene {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: var(--scene);
+  height: 100%;
+  transform: translateX(-50%);
+}
+.seats {
+  position: absolute;
+  right: 0;
+  bottom: var(--sit);
+  left: 0;
+  z-index: 1;
+  display: grid;
+  grid-auto-columns: var(--lane);
+  grid-auto-flow: column;
+  justify-content: center;
+  column-gap: var(--lane-gap);
+}
+.seat {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: var(--critter);
+  pointer-events: auto;
+}
+/* The couch, seen from behind: a low base, three plump back cushions joined
+   by thin seams, and rolled arms at the ends, in front of the readers. All flat
+   colors. Each cushion is centered on its reader's lane: the cushions together
+   span the lanes plus half a gap at each end, and the arms sit outside that,
+   so readers and their names sit in the middle of their seats. */
+.couch {
+  --arm: 46px;
+  --arm-gap: 4px;
+  position: absolute;
+  right: calc(-1 * (var(--lane-gap) / 2 + var(--arm-gap) + var(--arm)));
+  bottom: -10px;
+  left: calc(-1 * (var(--lane-gap) / 2 + var(--arm-gap) + var(--arm)));
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  height: calc(var(--couch) + 14px);
+}
+/* The base the cushions sit on, peeking out below them. */
+.couch::before {
+  content: '';
+  position: absolute;
+  right: 16px;
+  bottom: 0;
+  left: 16px;
+  height: 40%;
+  border-radius: 18px;
+  background: #1d1f24;
+}
+.couch-cushion {
+  position: relative;
+  flex: 1;
+  height: calc(100% - 4px);
+  /* A soft, pillowy top that dips only a little where cushions meet. */
+  border-radius: 30px 30px 14px 14px / 26px 26px 14px 14px;
+  background: #2c2f37;
+}
+/* A thin seam between cushions. */
+.couch-cushion + .couch-cushion {
+  margin-left: 2px;
+}
+/* The puff: a slightly lighter, rounded swell near the top of each cushion and
+   arm, where the stuffing is. */
+.couch-cushion::after,
+.couch-arm::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 10%;
+  left: 10%;
+  height: 46%;
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+  background: #33363f;
+}
+.couch-arm {
+  position: relative;
+  flex: none;
+  width: var(--arm);
+  height: 78%;
+  border-radius: 23px 23px 14px 14px;
+  background: #353841;
+}
+.couch-arm:first-child {
+  margin-right: var(--arm-gap);
+}
+.couch-arm:last-child {
+  margin-left: var(--arm-gap);
+}
+.couch-arm::after {
+  top: 5px;
+  right: 14%;
+  left: 14%;
+  height: 40%;
+  background: #3c3f49;
+}
+/* Each reader's name, on the couch below them. */
+.couch-names {
+  bottom: calc(var(--couch) * 0.38);
+  z-index: 3;
+}
+.couch-name {
+  justify-self: center;
+  color: #8b9099;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+/* A reader: the body jumps and hops; inside it, the sway is them reading. */
+.critter {
+  width: var(--critter);
+  height: var(--critter);
+  transform-origin: 50% 100%;
+}
+.critter-sway {
+  width: 100%;
+  height: 100%;
+  transform: rotate(var(--tilt, 0deg));
+  transform-origin: 50% 100%;
+}
+.critter-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: initial;
+  stroke: none;
+  /* The shade of their bubble a default reader wears (--seat-body, from
+     critters.js), or a bright, flat version of anyone else's color. */
+  --body: var(--seat-body, color-mix(in srgb, var(--color), #fff 40%));
+}
+@supports (color: oklch(from red l c h)) {
+  .critter-art {
+    --body: var(--seat-body, oklch(from var(--color) 0.74 max(calc(c * 2), 0.09) h));
+  }
+}
+.critter-art .body {
+  fill: var(--body);
+}
+/* Facing the article, the face is turned away, clipped to the head: hidden in
+   the middle, at the ends just its edge past the side of the head, looking up
+   at the text. Turning to speak, or when you hover over them, it slides round
+   toward you while the back of the head slides away. Nothing fades, so they
+   never stop looking real. */
+.critter-art .face,
+.critter-art .back {
+  transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+.critter-art .face {
+  transform: translate(var(--away), -3px);
+}
+.seat.speaking .critter-art .face,
+.seat:has(.critter:hover) .critter-art .face {
+  transform: translate(var(--look), 0);
+}
+.seat.speaking .critter-art .back,
+.seat:has(.critter:hover) .critter-art .back {
+  transform: translateX(calc(var(--away) * -1));
+}
+.critter-art .eye {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.critter-art .sprout {
+  transform-origin: 59px 29px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .critter.arriving {
+    animation: jump-in 0.95s cubic-bezier(0.25, 0.6, 0.35, 1) var(--delay) both;
+  }
+  .critter.hop {
+    animation: hop 0.5s ease-out;
+  }
+  .critter-sway {
+    animation: reading 5.2s ease-in-out var(--phase) infinite;
+  }
+  .critter-art {
+    animation: breathe 3.4s ease-in-out var(--phase) infinite;
+    transform-origin: 50% 100%;
+  }
+  .critter-art .eye {
+    animation: blink 4.6s infinite;
+  }
+  .critter-art .sprout {
+    animation: wobble 3.8s ease-in-out var(--phase) infinite;
+  }
+}
+/* From off screen (--from-x, --from-y), up in an arc, and down onto the couch
+   with a squash. */
+@keyframes jump-in {
+  0% {
+    transform: translate(var(--from-x, 0px), var(--from-y, 170%)) scale(0.94, 1.08);
+  }
+  50% {
+    transform: translate(calc(var(--from-x, 0px) * 0.22), -70%) scale(0.95, 1.07);
+  }
+  80% {
+    transform: translate(0, 4%) scale(1.1, 0.88);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  18% {
+    transform: translateY(3%) scale(1.07, 0.92);
+  }
+  50% {
+    transform: translateY(-24%) scale(0.95, 1.06);
+  }
+  80% {
+    transform: translateY(2%) scale(1.05, 0.95);
+  }
+}
+@keyframes reading {
+  0%,
+  100% {
+    transform: rotate(calc(var(--tilt, 0deg) - 1.4deg));
+  }
+  50% {
+    transform: rotate(calc(var(--tilt, 0deg) + 1.4deg)) translateY(-1px);
+  }
+}
+@keyframes breathe {
+  50% {
+    transform: scale(1.015, 0.985);
+  }
+}
+@keyframes blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+.bubble {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  width: max-content;
+  max-width: 100%;
+  padding: 14px 20px 16px;
+  border-radius: 22px;
+  /* A touch darker than iMessage's blue. */
+  background: #0870e0;
+  box-shadow: 0 6px 20px #000c;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.15;
+  transform-origin: var(--tail, 50%) 100%;
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+/* The tail points down at its reader. */
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: var(--tail, 50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: inherit;
+  transform: translateX(-50%) rotate(45deg);
+}
+.bubble-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+  color: #ffffffbf;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.bubble-name svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+/* Each default reader's bubble: Professor fact-checks in gray, Buzz jokes in blue,
+   Coach coaches founders in gold. */
+.bubble.fact {
+  background: #3d4149;
+}
+.bubble.founder {
+  background: #f0b94a;
+  color: #1c1505;
+}
+.bubble.founder .bubble-name {
+  color: #1c1505b3;
+}
+.bubble-text {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+/* More: the research or fact behind a remark, opened in the bubble. */
+.bubble-more-button {
+  display: flex;
+  width: max-content;
+  margin-top: 10px;
+  padding: 4px 11px 5px;
+  border-radius: 999px;
+  background: #ffffff21;
+  color: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.bubble-more-button:hover {
+  background: #ffffff38;
+}
+.bubble.founder .bubble-more-button {
+  background: #1c150514;
+}
+.bubble-more {
+  margin: 10px 0 0;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.45;
+  opacity: 0.9;
+}
+.bubble.open {
+  max-height: 55vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.bubble.leaving {
+  opacity: 0;
+  transform: scale(0.96);
+}
+/* A reaction: a thought bubble by the reader's head, with two small bubbles
+   leading up to it, that pop up and bounce in, in turn, and fade. */
+.thought {
+  position: absolute;
+  right: calc(50% + var(--critter) * 0.4);
+  bottom: calc(var(--critter) * 0.7);
+  width: 64px;
+  height: 64px;
+  pointer-events: none;
+}
+.thought-dot,
+.thought-cloud {
+  position: absolute;
+  border-radius: 50%;
+  background: #eef0f2;
+  box-shadow: 0 4px 14px #0008;
+}
+.thought-dot {
+  right: -6px;
+  bottom: -2px;
+  width: 11px;
+  height: 11px;
+}
+.thought-dot.small {
+  right: -14px;
+  bottom: -12px;
+  width: 7px;
+  height: 7px;
+}
+.thought-cloud {
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 46px;
+  border-radius: 50% 50% 46% 54% / 56% 52% 48% 44%;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Each pops up and bounces in, the small bubbles first, then the cloud;
+     they all fade together at the end. */
+  .thought-dot,
+  .thought-cloud {
+    animation:
+      thought-in 0.55s cubic-bezier(0.25, 0.9, 0.35, 1) var(--delay, 0s) both,
+      thought-out 0.3s ease-in calc(var(--duration) - 0.3s) forwards;
+  }
+  .thought-dot.small {
+    --delay: 0s;
+  }
+  .thought-dot:not(.small) {
+    --delay: 0.1s;
+  }
+  .thought-cloud {
+    --delay: 0.2s;
+    transform-origin: 85% 90%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thought {
+    animation: thought-fade var(--duration) ease both;
+  }
+}
+@keyframes thought-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.2);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.15);
+  }
+  65% {
+    transform: translateY(2px) scale(0.94);
+  }
+  82% {
+    transform: translateY(-1px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes thought-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.9);
+  }
+}
+@keyframes thought-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+}
+
+/* In the live styles, words a reader has a remark about are underlined,
+   faintly, the way document comments are; while the remark is up, they glow in
+   the speaker's color. */
+body.live .aside-anchor {
+  text-decoration-line: underline;
+  text-decoration-color: var(--underline);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-skip-ink: none;
+}
+.aside-anchor {
+  border-radius: 3px;
+  transition: background-color 0.5s;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.aside-anchor.spoken {
+  background: color-mix(in srgb, var(--color) 50%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bubble {
+    animation: bubble-in 0.22s ease-out;
+  }
+}
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+}
+
+/* The reading dot: in the live styles, the line in focus, in the left margin. */
+.reading-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 14;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 4px #e7e9ea26;
+  pointer-events: none;
+  transition:
+    transform 0.14s ease-out,
+    width 0.25s ease,
+    height 0.25s ease,
+    margin 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+/* On the reading couch, when a reader starts talking about the line, the dot
+   becomes their face for a moment, looking at the text. */
+.reading-dot .portrait {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.reading-dot.face {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  background: transparent;
+  box-shadow: none;
+}
+.reading-dot.face .portrait {
+  opacity: 1;
+  transition-delay: 0.08s;
+}
+/* The face pops in with a bounce, then keeps looking the text over, tilting
+   gently up and down, for as long as it's there. */
+@media (prefers-reduced-motion: no-preference) {
+  .reading-dot.face .portrait {
+    animation:
+      face-pop 0.5s cubic-bezier(0.25, 0.9, 0.35, 1) both,
+      face-look 1.6s ease-in-out 0.5s infinite alternate;
+  }
+}
+@keyframes face-pop {
+  0% {
+    transform: scale(0.3) rotate(-14deg);
+  }
+  50% {
+    transform: scale(1.18) rotate(6deg);
+  }
+  72% {
+    transform: scale(0.94) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(-5deg);
+  }
+}
+@keyframes face-look {
+  from {
+    transform: rotate(-5deg) translateY(0.5px);
+  }
+  to {
+    transform: rotate(7deg) translateY(-1px);
+  }
+}
+.reading-dot[hidden],
+body:not(.live) .reading-dot {
+  display: none;
+}
+.reading-dot.placing {
+  transition: none;
+}
+
+/* Reading cursors: each reader's cursor, like a collaborator's in Figma, in a
+   bright version of their color, with their name on a tag that turns into
+   cursor chat when they speak. */
+.cursors {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cursors[hidden] {
+  display: none;
+}
+.cursor,
+.cursor-hover {
+  --cursor: color-mix(in srgb, var(--color), #fff 45%);
+}
+@supports (color: oklch(from red l c h)) {
+  .cursor,
+  .cursor-hover {
+    --cursor: oklch(from var(--color) 0.8 max(calc(c * 2.4), 0.1) h);
+  }
+}
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+.cursor svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  overflow: visible;
+  fill: var(--cursor);
+  stroke: #fff;
+  stroke-width: 1.4;
+  filter: drop-shadow(0 1px 2px #000a);
+}
+.cursor-tag {
+  position: absolute;
+  top: 21px;
+  left: 14px;
+  padding: 3px 8px 4px;
+  border-radius: 3px 10px 10px 10px;
+  background: var(--cursor);
+  box-shadow: 0 2px 10px #0009;
+  color: #0f1419;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+  transform-origin: 0 0;
+}
+.cursor.left .cursor-tag {
+  right: 6px;
+  left: auto;
+  border-radius: 10px 3px 10px 10px;
+  transform-origin: 100% 0;
+}
+.cursor-tag.chat {
+  width: max-content;
+  max-width: var(--chat-width, 240px);
+  padding: 7px 12px 8px;
+  border-radius: 3px 16px 16px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: normal;
+}
+.cursor.left .cursor-tag.chat {
+  border-radius: 16px 3px 16px 16px;
+}
+/* Without a margin, tags and chat open inward, over the text. */
+.cursor.right.narrow .cursor-tag {
+  right: 6px;
+  left: auto;
+  border-radius: 10px 3px 10px 10px;
+  transform-origin: 100% 0;
+}
+.cursor.right.narrow .cursor-tag.chat {
+  border-radius: 16px 3px 16px 16px;
+}
+.cursor.left.narrow .cursor-tag {
+  right: auto;
+  left: 14px;
+  border-radius: 3px 10px 10px 10px;
+  transform-origin: 0 0;
+}
+.cursor.left.narrow .cursor-tag.chat {
+  border-radius: 3px 16px 16px 16px;
+}
+/* Talking without a margin, the cursor sits under (or over) its sentence, and
+   its chat opens down and to the right, clear of the words. */
+.cursor.narrow.under .cursor-tag,
+.cursor.narrow.under .cursor-tag.chat {
+  right: auto;
+  left: 14px;
+  border-radius: 3px 16px 16px 16px;
+  transform-origin: 0 0;
+}
+.chat-name {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  opacity: 0.65;
+}
+.cursor-tag.emoji-chat {
+  padding: 3px 10px 4px;
+  font-size: 1.375rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cursor-tag.chat {
+    animation: chat-in 0.18s ease-out;
+  }
+}
+@keyframes chat-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+/* The sentence a cursor is on, lit as if hovered. */
+.cursor-hover {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--cursor) 26%, transparent);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-color 0.3s;
+}
+
+/* Dialogs: editing a reader, and the series' about dialog. */
+dialog {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 36px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--background);
+  color: var(--text);
+  box-shadow: var(--glow);
+}
+dialog::backdrop {
+  background: #5b708366;
+}
+dialog h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 32px 12px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+dialog p {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+dialog .series {
+  margin: 0 32px 24px 0;
+  color: var(--text);
+  font-family: 'Pixelta', serif;
+  font-size: 44px;
+  line-height: 1;
+}
+dialog .series a {
+  text-decoration: none;
+}
+dialog .series a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+}
+.prototype-tag {
+  padding: 3px 8px 2px;
+  border: 1px solid #1d9bf066;
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.close-dialog {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 24px;
+  line-height: 1;
+}
+.close-dialog:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+#reader-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+.field {
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+.field:focus-within {
+  border-color: var(--accent);
+}
+.field span {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+.field:focus-within span {
+  color: var(--accent);
+}
+.field input,
+.field textarea {
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+.field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+#reader-form :disabled {
+  opacity: 0.55;
+}
+.reader-status:empty,
+.reader-error:empty {
+  display: none;
+}
+.reader-status {
+  color: var(--accent);
+}
+.reader-error {
+  margin: 0;
+  color: var(--error);
+}
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+.primary-button {
+  margin-left: auto;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--background);
+  font-weight: 700;
+}
+.primary-button:hover {
+  background: #d7dbdc;
+}
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.text-button {
+  padding: 8px 4px;
+  font-weight: 600;
+}
+.text-button.danger {
+  color: var(--error);
+}
+.text-button[hidden] {
+  display: none;
+}
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.875rem;
+}
+.source-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  stroke: none;
+}
+
+.notice {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 40;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.notice:empty {
+  display: none;
+}
+
+/* Phones and narrow windows: the discussion slides up as a sheet. */
+@media (max-width: 899px) {
+  body.panel-open {
+    padding-right: 0;
+  }
+  .thread-panel {
+    top: auto;
+    left: 0;
+    width: auto;
+    height: 72vh;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    box-shadow: var(--glow);
+  }
+  @keyframes panel-in {
+    from {
+      transform: translateY(32px);
+      opacity: 0;
+    }
+  }
+}
+@media (max-width: 600px) {
+  .topbar {
+    padding: 0 12px;
+  }
+  /* No room left of the first reader's head on a phone: their thought bubble
+     pops up on the right instead. */
+  .seat.left .thought {
+    right: auto;
+    left: calc(50% + var(--critter) * 0.4);
+  }
+  .seat.left .thought-dot {
+    right: auto;
+    left: -6px;
+  }
+  .seat.left .thought-dot.small {
+    left: -14px;
+  }
+  .seat.left .thought-cloud {
+    right: 0;
+    left: auto;
+    transform-origin: 15% 90%;
+  }
+  .reading-dot.face {
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+  }
+  .reading-row {
+    --lane-gap: 10px;
+    --couch: 62px;
+    --sit: 32px;
+  }
+  .couch {
+    --arm: 30px;
+    --arm-gap: 3px;
+  }
+  .couch-arm {
+    border-radius: 15px 15px 10px 10px;
+  }
+  .couch-cushion {
+    border-radius: 22px 22px 12px 12px / 20px 20px 12px 12px;
+  }
+  .bubble {
+    padding: 11px 14px 13px;
+    font-size: 1rem;
+  }
+  .series-button {
+    font-size: 19px;
+  }
+  .topbar-actions {
+    gap: 6px;
+  }
+  .intelligence summary,
+  .original-link {
+    padding: 0 11px;
+  }
+  .intelligence summary {
+    gap: 5px;
+    font-size: 0.875rem;
+  }
+  .original-link span {
+    display: none;
+  }
+  .intelligence {
+    position: static;
+  }
+  .intelligence-menu {
+    right: 12px;
+    width: calc(100vw - 24px);
+  }
+  /* Room in the left margin for the reading dot and the faces it becomes, and
+     a narrower column to match. */
+  .page {
+    padding: 24px 34px 72px;
+  }
+  .cover {
+    margin-bottom: 28px;
+  }
+  .article-title {
+    font-size: 2rem;
+  }
+  .article-body {
+    font-size: 1rem;
+  }
+  dialog {
+    padding: 28px 20px 24px;
+  }
+  dialog .series {
+    font-size: 34px;
+  }
+}

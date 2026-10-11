@@ -459,35 +459,38 @@ export class SelectionRewrite {
     const session = this.session;
     if (!session) return;
     this.applying = true;
-    this.removePreview();
-    if (this.editor.innerHTML !== session.originalHTML) {
-      this.notify('Document changed. Rewrite cancelled.');
-    } else if (session.rephrase) {
-      // Leave the new wording selected, ready for another double-click.
-      const inserted = this.commit(
-        session.original.range,
-        text,
-        'Rephrased. Double-click again for another wording, or undo to restore.',
-      );
-      if (inserted) {
-        this.history = {
-          before: session.original.before,
-          after: session.original.after,
-          texts: [...session.texts, text].slice(-12),
-        };
+    try {
+      this.removePreview();
+      if (this.editor.innerHTML !== session.originalHTML) {
+        this.notify('Document changed. Rewrite cancelled.');
+      } else if (session.rephrase) {
+        // Leave the new wording selected, ready for another double-click.
+        const inserted = this.commit(
+          session.original.range,
+          text,
+          'Rephrased. Double-click again for another wording, or undo to restore.',
+        );
+        if (inserted) {
+          this.history = {
+            before: session.original.before,
+            after: session.original.after,
+            texts: [...session.texts, text].slice(-12),
+          };
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(inserted);
+        }
+      } else if (text !== session.original.selected) {
+        this.flash(this.commit(session.original.range, text));
+      } else {
+        this.editor.focus({ preventScroll: true });
         const selection = window.getSelection();
         selection.removeAllRanges();
-        selection.addRange(inserted);
+        selection.addRange(session.original.range);
       }
-    } else if (text !== session.original.selected) {
-      this.flash(this.commit(session.original.range, text));
-    } else {
-      this.editor.focus({ preventScroll: true });
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(session.original.range);
+    } finally {
+      this.applying = false;
+      this.update();
     }
-    this.applying = false;
-    this.update();
   }
 }

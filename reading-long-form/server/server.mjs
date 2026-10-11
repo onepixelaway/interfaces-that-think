@@ -170,7 +170,7 @@ function visitorOf(request) {
     .find(([name]) => name === COOKIE)?.[1];
   if (found && /^[0-9a-f-]{36}$/.test(found)) return { id: found, cookie: null };
   const id = randomUUID();
-  const secure = request.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
+  const secure = TRUST_PROXY && request.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
   return {
     id,
     cookie: `${COOKIE}=${id}; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000${secure}`,
@@ -237,10 +237,12 @@ async function api(request, response, path) {
       );
     }
     let markdown;
+    const closed = untilClosed(response);
     try {
-      markdown = await ask(PARSE, article, null, untilClosed(response));
+      markdown = await ask(PARSE, article, null, closed);
     } catch (error) {
-      limits.giveBack(visitor.id, address);
+      // Leaving mid-read still cost the key, so that article isn't given back.
+      if (!closed.aborted) limits.giveBack(visitor.id, address);
       throw error;
     }
     return send(

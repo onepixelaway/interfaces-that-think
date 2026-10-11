@@ -1,4 +1,4 @@
-import { createDiagnostics } from './diagnostics.js?v=0ef30d68e0b0';
+import { createDiagnostics } from './diagnostics.js?v=7b66df0fd20a';
 import {
   MAX_WORDS,
   MAX_CHARS,
@@ -15,8 +15,8 @@ import {
 } from './compose-core.js?v=2b7382bcbabf';
 import { RealtimeCompose } from './realtime.js?v=b4675acd09d9';
 import { readSavedKey, saveKey, forgetKey } from './key-storage.js?v=d7465de288af';
-import { SelectionRewrite } from './selection-rewrite.js?v=48af245f0686';
-import { SelectionCombine } from './selection-combine.js?v=833383fe8ed4';
+import { SelectionRewrite } from './selection-rewrite.js?v=f1e44ae96c6d';
+import { SelectionCombine } from './selection-combine.js?v=07717eaa1eb7';
 
 const $ = id => document.getElementById(id);
 const editor = $('editor');
@@ -704,6 +704,8 @@ editor.addEventListener('keydown', event => {
 });
 editor.addEventListener('paste', event => {
   event.preventDefault();
+  // As with typing, the document waits while a rewrite or combine is underway.
+  if (working()) return;
   const ctx = context();
   if (!ctx) return;
   const pasted = event.clipboardData.getData('text/plain');
@@ -839,7 +841,11 @@ async function connectKey(key, automatic = false) {
   keyInput.value = '';
   updateRemoveKey();
   try {
-    await client.connect(key);
+    // Connecting closes any earlier connection first, which isn't a drop.
+    leaving = true;
+    const connected = client.connect(key);
+    leaving = false;
+    await connected;
     if (attempt !== connectionAttempt) return;
     let message =
       'Connected. Type for suggestions, select text and drag its handle, double-click it to rephrase, or drag it onto another sentence to combine them.';

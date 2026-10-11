@@ -50,6 +50,8 @@ The article then replaces the essay, with every idea working on it. It isn't sav
 
 ### Run it with your own key
 
+Run the commands in this README from the `reading-long-form` folder.
+
 ```sh
 OPENAI_API_KEY=sk-… node server/server.mjs
 ```
@@ -64,7 +66,7 @@ Then open `http://localhost:4175/`. The key stays on the server and never reache
 
 The prompts live on the server, in `server/prompts.mjs`, so the page can't send its own requests through the key. To limit abuse:
 
-- Each visitor can read 5 articles, counted by a random id in an HttpOnly cookie, and each IP address 15, so clearing the cookie doesn't reset the count. These counts last until the server restarts; they don't reset each day. If the first step fails, the article is given back.
+- Each visitor can read 5 articles, counted by a random id in an HttpOnly cookie, and each IP address 15, so clearing the cookie doesn't reset the count. These counts last until the server restarts; they don't reset each day. If the first step fails, the article is given back, unless the page closed partway through, since the model may already have done the work.
 - An article can be at most 60,000 characters.
 - Everyone together can read 200 articles a day, so the key's spending has a ceiling even if someone gets around the other limits.
 - An article's later steps each run once on a token from its first step, which lasts an hour, and can send no more text than the article had, plus its context. If a later step's model call fails, the page tries it once more on the same token; if that fails too, the article counts as read.

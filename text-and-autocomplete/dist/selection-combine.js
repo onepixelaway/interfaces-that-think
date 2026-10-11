@@ -367,67 +367,73 @@ export class SelectionCombine {
   finish(session, text) {
     const { source, target } = session;
     this.applying = true;
-    this.clear();
-    if (this.editor.innerHTML !== source.html) this.notify('Document changed. Combine cancelled.');
-    else {
-      const block = target.block;
-      const together =
-        this.blockOf(source.range.startContainer) === block &&
-        this.blockOf(source.range.endContainer) === block;
-      let merged = null;
-      if (together) {
-        const span = {
-          start: this.offsetIn(block, source.range.startContainer, source.range.startOffset),
-          end: this.offsetIn(block, source.range.endContainer, source.range.endOffset),
-        };
-        const edit = mergeSpans(this.blockText(block), span, target.span, text);
-        const range = this.rangeIn(block, edit.start, edit.end);
-        const parents = new Set();
-        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
-        while (range && walker.nextNode()) {
-          if (range.intersectsNode(walker.currentNode)) parents.add(walker.currentNode.parentNode);
-        }
-        if (range && parents.size === 1) {
-          merged = {
-            range,
-            text: edit.text,
-            lead: edit.start === target.span.start ? 0 : edit.text.length - text.length,
+    try {
+      this.clear();
+      if (this.editor.innerHTML !== source.html)
+        this.notify('Document changed. Combine cancelled.');
+      else {
+        const block = target.block;
+        const together =
+          this.blockOf(source.range.startContainer) === block &&
+          this.blockOf(source.range.endContainer) === block;
+        let merged = null;
+        if (together) {
+          const span = {
+            start: this.offsetIn(block, source.range.startContainer, source.range.startOffset),
+            end: this.offsetIn(block, source.range.endContainer, source.range.endOffset),
           };
+          const edit = mergeSpans(this.blockText(block), span, target.span, text);
+          const range = this.rangeIn(block, edit.start, edit.end);
+          const parents = new Set();
+          const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+          while (range && walker.nextNode()) {
+            if (range.intersectsNode(walker.currentNode))
+              parents.add(walker.currentNode.parentNode);
+          }
+          if (range && parents.size === 1) {
+            merged = {
+              range,
+              text: edit.text,
+              lead: edit.start === target.span.start ? 0 : edit.text.length - text.length,
+            };
+          }
         }
-      }
-      let inserted;
-      if (merged) {
-        inserted = this.commit(
-          merged.range,
-          merged.text,
-          'Combined into one sentence. Undo to restore.',
-        );
-        // Flash only the new sentence, not the text carried between the two.
+        let inserted;
+        if (merged) {
+          inserted = this.commit(
+            merged.range,
+            merged.text,
+            'Combined into one sentence. Undo to restore.',
+          );
+          // Flash only the new sentence, not the text carried between the two.
+          if (inserted) {
+            const start =
+              this.offsetIn(block, inserted.startContainer, inserted.startOffset) + merged.lead;
+            inserted = this.rangeIn(block, start, start + text.length) || inserted;
+          }
+        } else {
+          const done = 'Combined into one sentence. Undo twice to restore.';
+          const removal = this.removalRange(source.range);
+          const sourceFirst =
+            source.range.compareBoundaryPoints(Range.START_TO_START, target.range) < 0;
+          if (sourceFirst) {
+            inserted = this.commit(target.range, text, done);
+            if (inserted) this.commit(removal, '', done);
+          } else if (this.commit(removal, '', done))
+            inserted = this.commit(target.range, text, done);
+        }
         if (inserted) {
-          const start =
-            this.offsetIn(block, inserted.startContainer, inserted.startOffset) + merged.lead;
-          inserted = this.rangeIn(block, start, start + text.length) || inserted;
+          const selection = window.getSelection();
+          const caret = inserted.cloneRange();
+          caret.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(caret);
+          this.flash(inserted);
         }
-      } else {
-        const done = 'Combined into one sentence. Undo twice to restore.';
-        const removal = this.removalRange(source.range);
-        const sourceFirst =
-          source.range.compareBoundaryPoints(Range.START_TO_START, target.range) < 0;
-        if (sourceFirst) {
-          inserted = this.commit(target.range, text, done);
-          if (inserted) this.commit(removal, '', done);
-        } else if (this.commit(removal, '', done)) inserted = this.commit(target.range, text, done);
       }
-      if (inserted) {
-        const selection = window.getSelection();
-        const caret = inserted.cloneRange();
-        caret.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(caret);
-        this.flash(inserted);
-      }
+    } finally {
+      this.applying = false;
+      this.idle();
     }
-    this.applying = false;
-    this.idle();
   }
 }
